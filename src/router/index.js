@@ -5,8 +5,8 @@ import Login from "../components/Login";
 import Logout from "../components/Logout";
 import Settings from "../components/Settings";
 import TaskView from "../components/TaskView";
-
-const fb = require("../firebaseConfig");
+import firebase from "firebase/app";
+import "firebase/auth";
 
 Vue.use(VueRouter);
 
@@ -59,10 +59,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(x => x.meta.requiresAuth);
+  const currentUser = firebase.auth().currentUser;
 
-  if (requiresAuth && !fb.currentUser) {
+  if (requiresAuth && !currentUser) {
     next("/login");
-  } else if (requiresAuth && fb.currentUser) {
+  } else if (requiresAuth && currentUser) {
     next();
   } else {
     next();

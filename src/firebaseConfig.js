@@ -1,5 +1,7 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
 import "firebase/firestore";
+import "firebase/analytics";
+import "firebase/auth";
 
 const config = {
   apiKey: "AIzaSyAXUwmqt3HZP2jf0QIaE1r7C9yOVbwPBHE",
@@ -21,10 +23,7 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const currentUser = auth.currentUser;
 
-// date issue fix according to firebase
-const settings = {
-  timestampsInSnapshots: true
-};
+const settings = {};
 db.settings(settings);
 
 export { db, auth, currentUser };

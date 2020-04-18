@@ -8,8 +8,11 @@ import vuetify from "./plugins/vuetify";
 import "roboto-fontface/css/roboto/roboto-fontface.css";
 import "@mdi/font/css/materialdesignicons.css";
 import "./utils/validation";
+import FirebasePlugin from "./utils/firebase-plugin";
 
 Vue.config.productionTip = false;
+
+Vue.use(FirebasePlugin, { fb: fb });
 
 let app;
 // eslint-disable-next-line
