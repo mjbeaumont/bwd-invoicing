@@ -2,7 +2,6 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Dashboard from "../components/Dashboard";
 import Login from "../components/Login";
-import Logout from "../components/Logout";
 import Settings from "../components/Settings";
 import TaskView from "../components/TaskView";
 import firebase from "firebase/app";
@@ -19,11 +18,6 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login
-  },
-  {
-    path: "/logout",
-    name: "Logout",
-    component: Logout
   },
   {
     path: "/dashboard",

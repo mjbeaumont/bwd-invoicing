@@ -21,9 +21,8 @@ firebase.analytics();
 // firebase utils
 const db = firebase.firestore();
 const auth = firebase.auth();
-const currentUser = auth.currentUser;
 
 const settings = {};
 db.settings(settings);
 
-export { db, auth, currentUser };
+export { db, auth };
