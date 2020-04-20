@@ -25,4 +25,6 @@ const auth = firebase.auth();
 const settings = {};
 db.settings(settings);
 
-export { db, auth };
+const settingsCollection = db.collection("settings");
+
+export { db, auth, settingsCollection };
