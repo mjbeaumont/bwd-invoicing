@@ -6,13 +6,28 @@
         <router-view></router-view>
       </keep-alive>
     </v-content>
+    <v-snackbar
+      v-model="snack.snackbar"
+      :timeout="snack.timeout"
+      :color="snack.color"
+      :bottom="snack.bottom"
+      :top="snack.top"
+      :right="snack.right"
+      :left="snack.left"
+      >{{ snack.text }}</v-snackbar
+    >
   </v-app>
 </template>
 
 <script>
 import Navigation from "./components/Navigation";
 export default {
-  components: { Navigation }
+  components: { Navigation },
+  computed: {
+    snack() {
+      return this.$store.state.snack;
+    }
+  }
 };
 </script>
 

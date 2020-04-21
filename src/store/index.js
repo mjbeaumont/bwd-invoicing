@@ -5,7 +5,9 @@ import {
   CLEAR_DATA,
   SET_TASKS,
   SET_CLIENTS,
-  SET_SETTINGS
+  SET_SETTINGS,
+  SET_SNACK,
+  CLEAR_SNACK
 } from "./mutation-types";
 import clickupService from "./../utils/clickup-service";
 import freshbooksService from "./../utils/freshbooks-service";
@@ -24,7 +26,16 @@ export const store = new Vuex.Store({
     currentUser: null,
     settings: {},
     tasks: [],
-    clients: []
+    clients: [],
+    snack: {
+      snackbar: false,
+      top: null,
+      bottom: null,
+      left: null,
+      right: null,
+      timeout: null,
+      color: ""
+    }
   },
   getters: {
     loggedIn: state => state.currentUser !== null
@@ -47,6 +58,20 @@ export const store = new Vuex.Store({
       state.settings = {};
       state.tasks = [];
       state.clients = [];
+    },
+    [SET_SNACK](state, val) {
+      state.snack = val;
+    },
+    [CLEAR_SNACK](state) {
+      state.snack = {
+        snackbar: false,
+        top: null,
+        bottom: null,
+        left: null,
+        right: null,
+        timeout: null,
+        color: ""
+      };
     }
   },
   actions: {
@@ -56,8 +81,10 @@ export const store = new Vuex.Store({
           state.settings.clickup.team_id +
           "/task?statuses%5B%5D=Awaiting%20Invoicing"
       );
-      const tasks = response.tasks.filter(task => task.time_spent > 0);
-      commit(SET_TASKS, tasks);
+      if (response.status === 200) {
+        const tasks = response.tasks.filter(task => task.time_spent > 0);
+        commit(SET_TASKS, tasks);
+      }
     },
     async loadClients({ commit, state }) {
       let response = await freshbooksService.get(
@@ -65,7 +92,9 @@ export const store = new Vuex.Store({
           state.settings.freshbooks.account_id +
           "/users/clients?per_page=50&search[vis_state]=active"
       );
-      commit(SET_CLIENTS, response.response.result.clients);
+      if (response.status === 200) {
+        commit(SET_CLIENTS, response.response.result.clients);
+      }
     },
     async loadSettings({ commit, state }) {
       await fb.db
@@ -78,6 +107,10 @@ export const store = new Vuex.Store({
         .catch(err => {
           console.log(err);
         });
+    },
+    clearData({ commit }) {
+      commit(CLEAR_DATA);
+      commit(CLEAR_SNACK);
     }
   },
   modules: {}
