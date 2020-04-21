@@ -56,7 +56,8 @@ export const store = new Vuex.Store({
           state.settings.clickup.team_id +
           "/task?statuses%5B%5D=Awaiting%20Invoicing"
       );
-      commit(SET_TASKS, response.tasks);
+      const tasks = response.tasks.filter(task => task.time_spent > 0);
+      commit(SET_TASKS, tasks);
     },
     async loadClients({ commit, state }) {
       let response = await freshbooksService.get(
