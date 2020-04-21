@@ -12,6 +12,7 @@ import {
 import clickupService from "./../utils/clickup-service";
 import freshbooksService from "./../utils/freshbooks-service";
 const fb = require("../firebaseConfig");
+const deepmerge = require("deepmerge");
 
 Vue.use(Vuex);
 
@@ -97,8 +98,7 @@ export const store = new Vuex.Store({
       }
     },
     async loadSettings({ commit, state }) {
-      await fb.db
-        .collection("settings")
+      await fb.settingsCollection
         .doc(state.currentUser.uid)
         .get()
         .then(res => {
@@ -106,6 +106,15 @@ export const store = new Vuex.Store({
         })
         .catch(err => {
           console.log(err);
+        });
+    },
+    async updateSettings({ commit, state }, val) {
+      const newSettings = deepmerge(state.settings, val);
+      await fb.settingsCollection
+        .doc(state.currentUser.uid)
+        .update(newSettings)
+        .then(() => {
+          commit(SET_SETTINGS, newSettings);
         });
     },
     clearData({ commit }) {
