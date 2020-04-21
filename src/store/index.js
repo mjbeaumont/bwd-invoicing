@@ -82,7 +82,7 @@ export const store = new Vuex.Store({
           state.settings.clickup.team_id +
           "/task?statuses%5B%5D=Awaiting%20Invoicing"
       );
-      if (response.status === 200) {
+      if (response.tasks && response.tasks.length) {
         const tasks = response.tasks.filter(task => task.time_spent > 0);
         commit(SET_TASKS, tasks);
       }
@@ -93,8 +93,8 @@ export const store = new Vuex.Store({
           state.settings.freshbooks.account_id +
           "/users/clients?per_page=50&search[vis_state]=active"
       );
-      if (response.status === 200) {
-        commit(SET_CLIENTS, response.response.result.clients);
+      if (response.clients && response.clients.length) {
+        commit(SET_CLIENTS, response.clients);
       }
     },
     async loadSettings({ commit, state }) {

@@ -52,7 +52,7 @@ async function request(url, params, method = "get") {
   }
   const result = await response.json();
 
-  return result;
+  return result.response.result;
 }
 
 async function refreshToken() {
