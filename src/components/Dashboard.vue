@@ -1,71 +1,112 @@
-<template>
-  <v-container>
+<template
+  ><v-container>
     <v-row>
-      <v-col>
-        <v-data-table
-          :items="tasks"
-          :headers="headers"
-          show-select
-          sort-by="project"
-          :items-per-page="20"
-          :loading="loading"
-          item-key="name"
-          v-model="selected"
-        >
-        </v-data-table>
-      </v-col>
+      <v-col lg="4"
+        ><v-card :loading="loading" class="dashboard-card">
+          <v-card-title>Outstanding Tasks</v-card-title>
+          <v-card-text
+            class="display-3 font-weight-light pb-2 mb-1 border-bottom"
+            >{{ countTasks }}</v-card-text
+          >
+          <v-icon
+            x-large
+            color="white"
+            style="background-color: #ff420f;box-shadow: 0 0 10px 5px rgba(255, 66, 15, 0.35);"
+            >mdi-playlist-check</v-icon
+          >
+        </v-card></v-col
+      >
+      <v-col lg="4"
+        ><v-card :loading="loading" class="dashboard-card">
+          <v-card-title>Billable Hours</v-card-title>
+          <v-card-text
+            class="display-3 font-weight-light pb-2 mb-1 border-bottom"
+            >{{ billableHours | clickupHours }}</v-card-text
+          >
+          <v-icon
+            x-large
+            color="white"
+            style="background-color: #00b67a;box-shadow: 0 0 10px 5px rgba(0, 182, 122, 0.35)"
+            >mdi-currency-usd</v-icon
+          >
+        </v-card></v-col
+      >
+      <v-col lg="4"
+        ><v-card :loading="loading" class="dashboard-card">
+          <v-card-title># of Projects</v-card-title>
+          <v-card-text
+            class="display-3 font-weight-light pb-2 mb-1 border-bottom"
+            >{{ numberProjects }}</v-card-text
+          >
+          <v-icon
+            x-large
+            color="white"
+            style="background-color: #00bbdd;box-shadow: 0 0 10px 5px rgba(0, 187, 221, 0.35)"
+            >mdi-folder-multiple-outline</v-icon
+          >
+        </v-card></v-col
+      >
     </v-row>
   </v-container>
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   computed: {
-    tasks() {
-      return this.$store.state.tasks.map(task => {
-        return {
-          id: task.id,
-          project: task.folder.name,
-          name: task.name,
-          time: task.time_spent / 3600000 + "h"
-        };
-      });
+    ...mapState(["tasks"]),
+    countTasks() {
+      return this.tasks.length;
     },
-    state() {
-      return this.$store.state;
+    billableHours() {
+      return this.tasks.reduce((cur, task) => {
+        let time_spent = Number.parseInt(task.time_spent);
+        return !isNaN(time_spent) ? time_spent + cur : cur;
+      }, 0);
+    },
+    numberProjects() {
+      const uniqueProjects = this.tasks.filter((task, pos, arr) => {
+        return (
+          arr.map(mapObj => mapObj.project.name).indexOf(task.project.name) ===
+          pos
+        );
+      });
+
+      return uniqueProjects.length;
     }
   },
   data() {
     return {
-      selected: [],
-      loading: true,
-      headers: [
-        {
-          text: "Project Name",
-          value: "project",
-          align: "start"
-        },
-        {
-          text: "Task Name",
-          value: "name"
-        },
-        {
-          text: "Time",
-          value: "time"
-        }
-      ]
+      loading: true
     };
   },
   async mounted() {
-    await this.$store.dispatch("loadSettings");
-    await Promise.all([
-      this.$store.dispatch("loadClients"),
-      this.$store.dispatch("loadTasks")
-    ]);
+    if (this.loading) {
+      await this.$store.dispatch("loadSettings");
+      await Promise.all([
+        this.$store.dispatch("loadClients"),
+        this.$store.dispatch("loadTasks")
+      ]);
+    }
     this.loading = false;
   },
   name: "Dashboard"
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "~vuetify/src/styles/styles.sass";
+.dashboard-card {
+  position: relative;
+  min-height: 150px;
+  .v-icon {
+    position: absolute;
+    right: -10px;
+    height: 57px;
+    width: 57px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px;
+  }
+}
+</style>
