@@ -11,20 +11,19 @@
               <validation-provider
                 name="email"
                 rules="required|email"
-                v-slot="{ errors, valid }"
+                v-slot="{ errors }"
               >
                 <v-text-field
                   label="Email"
                   prepend-icon="mdi-account-circle"
                   v-model="username"
                   :error-messages="errors"
-                  :success="valid"
                 ></v-text-field>
               </validation-provider>
               <validation-provider
                 name="password"
                 rules="required"
-                v-slot="{ errors, valid }"
+                v-slot="{ errors }"
               >
                 <v-text-field
                   label="Password"
@@ -34,7 +33,6 @@
                   @click:append="togglePassword"
                   v-model="password"
                   :error-messages="errors"
-                  :success="valid"
                 ></v-text-field>
               </validation-provider>
             </v-card-text>
