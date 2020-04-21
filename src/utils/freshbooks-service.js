@@ -1,4 +1,5 @@
 import { store } from "./../store/index";
+import { SET_SNACK } from "./../store/mutation-types";
 
 const _apiHost = "https://api.freshbooks.com/";
 const _proxyUrl = "https://cors-anywhere.herokuapp.com/";
@@ -27,7 +28,18 @@ async function request(url, params, method = "get") {
   const response = await fetch(_proxyUrl + _apiHost + url, options);
 
   if (response.status !== 200) {
-    console.log("error");
+    store.commit(SET_SNACK, {
+      snackbar: true,
+      text:
+        "Freshbooks Error: " +
+        response.status +
+        "(" +
+        response.statusText +
+        ")",
+      timeout: 6000,
+      color: "error",
+      bottom: true
+    });
   }
   const result = await response.json();
 
