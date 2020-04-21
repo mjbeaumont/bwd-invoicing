@@ -17,6 +17,11 @@
         </v-data-table>
       </v-col>
     </v-row>
+    <v-fab-transition>
+      <v-btn fab fixed bottom right color="accent" v-if="selected.length"
+        ><v-icon>mdi-receipt</v-icon></v-btn
+      >
+    </v-fab-transition>
   </v-container></template
 >
 
