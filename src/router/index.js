@@ -1,9 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Dashboard from "../components/Dashboard";
-import Login from "../components/Login";
-import Settings from "../components/Settings";
-import TaskView from "../components/TaskView";
+import Dashboard from "../views/Dashboard";
+import Login from "../views/Login";
+import Settings from "../views/Settings";
+import TaskView from "../views/TaskView";
 import firebase from "firebase/app";
 import "firebase/auth";
 

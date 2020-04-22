@@ -80,7 +80,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "~vuetify/src/styles/styles.sass";
+@import "../../node_modules/vuetify/src/styles/styles";
 .dashboard-card {
   position: relative;
   min-height: 150px;
