@@ -48,7 +48,7 @@ export const store = new Vuex.Store({
         return client.organization;
       }
 
-      return "Click to select";
+      return "None selected";
     }
   },
   mutations: {
