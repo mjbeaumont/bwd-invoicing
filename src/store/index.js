@@ -39,7 +39,15 @@ export const store = new Vuex.Store({
     }
   },
   getters: {
-    loggedIn: state => state.currentUser !== null
+    loggedIn: state => state.currentUser !== null,
+    clientName: state => val => {
+      const client = state.clients.find(client => client.id === val);
+      if (client) {
+        return client.organization;
+      }
+
+      return "Click to select";
+    }
   },
   mutations: {
     [SET_CURRENT_USER](state, val) {
