@@ -3,7 +3,7 @@
     <navigation></navigation>
     <v-content>
       <keep-alive>
-        <router-view></router-view>
+        <router-view @loadData="loadData"></router-view>
       </keep-alive>
     </v-content>
     <v-snackbar
@@ -20,12 +20,31 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+import { SET_LOADING } from "./store/mutation-types";
 import Navigation from "./components/Navigation";
 export default {
   components: { Navigation },
   computed: {
+    ...mapState(["currentUser"]),
     snack() {
       return this.$store.state.snack;
+    }
+  },
+  async created() {
+    if (this.currentUser) {
+      this.$store.commit(SET_LOADING, true);
+      await this.loadData();
+      this.$store.commit(SET_LOADING, false);
+    }
+  },
+  methods: {
+    async loadData() {
+      await this.$store.dispatch("loadSettings");
+      await Promise.all([
+        this.$store.dispatch("loadClients"),
+        this.$store.dispatch("loadTasks")
+      ]);
     }
   }
 };

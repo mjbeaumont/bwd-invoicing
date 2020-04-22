@@ -54,7 +54,7 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["tasks"]),
+    ...mapState(["tasks", "loading"]),
     countTasks() {
       return this.tasks.length;
     },
@@ -74,21 +74,6 @@ export default {
 
       return uniqueProjects.length;
     }
-  },
-  data() {
-    return {
-      loading: true
-    };
-  },
-  async mounted() {
-    if (this.loading) {
-      await this.$store.dispatch("loadSettings");
-      await Promise.all([
-        this.$store.dispatch("loadClients"),
-        this.$store.dispatch("loadTasks")
-      ]);
-    }
-    this.loading = false;
   },
   name: "Dashboard"
 };

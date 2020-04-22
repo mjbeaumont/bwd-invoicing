@@ -10,6 +10,7 @@
           :items-per-page="20"
           item-key="name"
           v-model="selected"
+          :loading="loading"
         >
           <template v-slot:item.time="{ item }">
             {{ item.time | clickupHours }}
@@ -28,7 +29,7 @@
                   item-value="id"
                   label="Client"
                   placeholder="Start typing to search"
-                  prepend-icon="mdi-search"
+                  prepend-icon="mdi-magnify"
                 ></v-autocomplete> </template></v-edit-dialog
           ></template>
           <template v-slot:item.includeProjectName="{ item }">
@@ -51,7 +52,7 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["clients"]),
+    ...mapState(["clients", "loading"]),
     tasks() {
       return this.$store.state.tasks.map(task => {
         return {

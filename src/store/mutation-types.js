@@ -5,3 +5,4 @@ export const SET_CLIENTS = "setClients";
 export const SET_SETTINGS = "setSettings";
 export const SET_SNACK = "setSnack";
 export const CLEAR_SNACK = "clearSnack";
+export const SET_LOADING = "setLoading";

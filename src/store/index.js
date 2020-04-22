@@ -7,7 +7,8 @@ import {
   SET_CLIENTS,
   SET_SETTINGS,
   SET_SNACK,
-  CLEAR_SNACK
+  CLEAR_SNACK,
+  SET_LOADING
 } from "./mutation-types";
 import clickupService from "./../utils/clickup-service";
 import freshbooksService from "./../utils/freshbooks-service";
@@ -36,7 +37,8 @@ export const store = new Vuex.Store({
       right: null,
       timeout: null,
       color: ""
-    }
+    },
+    loading: false
   },
   getters: {
     loggedIn: state => state.currentUser !== null,
@@ -81,6 +83,9 @@ export const store = new Vuex.Store({
         timeout: null,
         color: ""
       };
+    },
+    [SET_LOADING](state, val) {
+      state.loading = val;
     }
   },
   actions: {

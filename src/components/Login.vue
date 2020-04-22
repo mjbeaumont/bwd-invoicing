@@ -66,6 +66,7 @@ export default {
         .signInWithEmailAndPassword(this.username, this.password)
         .then(user => {
           this.$store.commit(SET_CURRENT_USER, user.user);
+          this.$emit("loadData");
           this.$router.push("dashboard");
         })
         .catch(err => {
