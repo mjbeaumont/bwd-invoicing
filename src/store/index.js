@@ -99,7 +99,7 @@ export const store = new Vuex.Store({
       let response = await freshbooksService.get(
         "/accounting/account/" +
           state.settings.freshbooks.account_id +
-          "/users/clients?per_page=50&search[vis_state]=active"
+          "/users/clients?per_page=50&search[vis_state]=0"
       );
       if (response.clients && response.clients.length) {
         commit(SET_CLIENTS, response.clients);
