@@ -78,7 +78,7 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["clients", "loading"]),
+    ...mapState(["clients", "loading", "settings"]),
     tasks() {
       return this.$store.state.tasks.map(task => {
         return {
@@ -86,10 +86,15 @@ export default {
           project: task.folder.name,
           name: task.name,
           time: task.time_spent,
-          client: this.getClient(task.folder.id),
-          includeProjectName: this.getInclude(task.folder.id)
+          client: 0,
+          includeProjectName: false
         };
       });
+    }
+  },
+  created() {
+    if (!this.loading) {
+      this.setDefaults();
     }
   },
   data() {
@@ -158,12 +163,30 @@ export default {
         console.log("error");
       }
       this.close();
+    },
+    setDefaults() {
+      this.tasks.forEach(task => {
+        const setting = this.settings.projects.find(
+          project => project.name === task.project
+        );
+        if (setting) {
+          task = Object.assign(task, {
+            client: setting.client_id,
+            includeProjectName: setting.includeProjects
+          });
+        }
+      });
     }
   },
   name: "TaskView",
   watch: {
     dialog(val) {
       val || this.close();
+    },
+    loading(val) {
+      if (!val) {
+        this.setDefaults();
+      }
     }
   }
 };
