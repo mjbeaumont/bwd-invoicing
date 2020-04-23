@@ -148,16 +148,8 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-    getClient(folderId) {
-      console.log(folderId);
-      return null;
-    },
-    getInclude(folderId) {
-      console.log(folderId);
-      return false;
-    },
     getClientName(id) {
-      return this.$store.getters.clientName(id);
+      return id ? this.$store.getters.clientName(id) : "None selected";
     },
     save() {
       if (this.editedIndex > -1) {

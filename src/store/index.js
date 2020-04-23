@@ -47,8 +47,6 @@ export const store = new Vuex.Store({
       if (client) {
         return client.organization;
       }
-
-      return "None selected";
     }
   },
   mutations: {
