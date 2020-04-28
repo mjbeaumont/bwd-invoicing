@@ -67,7 +67,15 @@
       </v-col>
     </v-row>
     <v-fab-transition>
-      <v-btn fab fixed bottom right color="accent" v-if="selected.length"
+      <v-btn
+        fab
+        fixed
+        bottom
+        right
+        x-large
+        color="accent"
+        v-if="selected.length"
+        @click="confirm"
         ><v-icon>mdi-receipt</v-icon></v-btn
       >
     </v-fab-transition>
@@ -76,6 +84,7 @@
 
 <script>
 import { mapState } from "vuex";
+import { SET_SNACK, SET_SELECTED } from "../store/mutation-types";
 export default {
   computed: {
     ...mapState(["clients", "loading", "settings"]),
@@ -155,6 +164,21 @@ export default {
     },
     getClientName(id) {
       return id ? this.$store.getters.clientName(id) : "None selected";
+    },
+    confirm() {
+      const valid = this.selected.every(task => task.client);
+      if (valid) {
+        this.$store.commit(SET_SELECTED, this.selected);
+        this.$router.push("confirm");
+      } else {
+        this.$store.commit(SET_SNACK, {
+          snackbar: true,
+          text: "You must select a client for each selected task",
+          timeout: 6000,
+          color: "error",
+          bottom: true
+        });
+      }
     },
     save() {
       if (this.editedIndex > -1) {

@@ -8,7 +8,8 @@ import {
   SET_SETTINGS,
   SET_SNACK,
   CLEAR_SNACK,
-  SET_LOADING
+  SET_LOADING,
+  SET_SELECTED
 } from "./mutation-types";
 import clickupService from "./../utils/clickup-service";
 import freshbooksService from "./../utils/freshbooks-service";
@@ -29,6 +30,7 @@ export const store = new Vuex.Store({
     settings: {},
     tasks: [],
     clients: [],
+    selected: [],
     snack: {
       snackbar: false,
       top: null,
@@ -84,6 +86,9 @@ export const store = new Vuex.Store({
     },
     [SET_LOADING](state, val) {
       state.loading = val;
+    },
+    [SET_SELECTED](state, val) {
+      state.selected = val;
     }
   },
   actions: {
