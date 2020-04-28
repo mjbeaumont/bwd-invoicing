@@ -2,7 +2,7 @@ import { store } from "./../store/index";
 import { SET_SNACK } from "../store/mutation-types";
 
 const _apiHost = "https://api.clickup.com/api/v2";
-const _proxyUrl = "https://cors-anywhere.herokuapp.com/";
+const _proxyUrl = "https://cors.beaumontwebdev.com:4856/";
 
 async function request(url, params, method = "get") {
   const myHeaders = new Headers();
