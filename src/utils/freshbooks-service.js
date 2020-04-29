@@ -71,13 +71,14 @@ async function refreshToken() {
   });
 
   const result = await response.json();
-  await store.dispatch("updateSettings", {
+  const val = {
     freshbooks: {
       access_token: result.access_token,
       refresh_token: result.refresh_token,
       expires: result.expires_in + result.created_at
     }
-  });
+  };
+  await store.dispatch("updateSettings", { val: val, mergeType: "merge" });
 
   return result.access_token;
 }

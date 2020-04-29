@@ -124,8 +124,11 @@ export const store = new Vuex.Store({
           console.log(err);
         });
     },
-    async updateSettings({ commit, state }, val) {
-      const newSettings = deepmerge(state.settings, val);
+    async updateSettings({ commit, state }, payload) {
+      const newSettings =
+        payload.mergeType === "overwrite"
+          ? payload.val
+          : deepmerge(state.settings, payload.val);
       await fb.settingsCollection
         .doc(state.currentUser.uid)
         .update(newSettings)
