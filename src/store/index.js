@@ -92,23 +92,20 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    async loadTasks({ commit, state }) {
-      let response = await clickupService.get(
-        "/team/" +
-          state.settings.clickup.team_id +
-          "/task?statuses%5B%5D=Awaiting%20Invoicing"
-      );
+    async loadTasks({ commit }) {
+      let response = await clickupService.getTasks({
+        ["statuses[]"]: "Awaiting Invoicing"
+      });
       if (response.tasks && response.tasks.length) {
         const tasks = response.tasks.filter(task => task.time_spent > 0);
         commit(SET_TASKS, tasks);
       }
     },
-    async loadClients({ commit, state }) {
-      let response = await freshbooksService.get(
-        "/accounting/account/" +
-          state.settings.freshbooks.account_id +
-          "/users/clients?per_page=50&search[vis_state]=0"
-      );
+    async loadClients({ commit }) {
+      let response = await freshbooksService.getClients({
+        per_page: 50,
+        ["search[vis_state]"]: 0
+      });
       if (response.clients && response.clients.length) {
         commit(SET_CLIENTS, response.clients);
       }

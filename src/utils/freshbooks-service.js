@@ -1,5 +1,6 @@
 import { store } from "./../store/index";
 import { SET_SNACK } from "./../store/mutation-types";
+import apiService from "./api-service";
 
 const _apiHost = "https://api.freshbooks.com/";
 const _proxyUrl = "https://cors.beaumontwebdev.com:4856/";
@@ -28,7 +29,7 @@ async function request(url, params, method = "get") {
 
   if (params) {
     if (method === "GET") {
-      url += "?" + objectToQueryString(params);
+      url += "?" + apiService.objectToQueryString(params);
     } else {
       options.body = JSON.stringify(params);
     }
@@ -53,6 +54,26 @@ async function request(url, params, method = "get") {
   const result = await response.json();
 
   return result.response.result;
+}
+
+async function createInvoice(data) {
+  return await apiService.create(
+    "accounting/account/" +
+      store.state.settings.freshbooks.account_id +
+      "/invoices/invoices",
+    data,
+    request
+  );
+}
+
+async function getClients(search) {
+  return await apiService.get(
+    "/accounting/account/" +
+      store.state.settings.freshbooks.account_id +
+      "/users/clients",
+    search,
+    request
+  );
 }
 
 async function refreshToken() {
@@ -83,31 +104,7 @@ async function refreshToken() {
   return result.access_token;
 }
 
-function objectToQueryString(obj) {
-  return Object.keys(obj)
-    .map(key => key + "=" + obj[key])
-    .join("&");
-}
-
-function get(url, params) {
-  return request(url, params);
-}
-
-function create(url, params) {
-  return request(url, params, "POST");
-}
-
-function update(url, params) {
-  return request(url, params, "PUT");
-}
-
-function remove(url, params) {
-  return request(url, params, "DELETE");
-}
-
 export default {
-  get,
-  create,
-  update,
-  remove
+  createInvoice,
+  getClients
 };

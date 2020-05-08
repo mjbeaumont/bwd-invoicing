@@ -238,16 +238,11 @@ export default {
             qty: isNaN(time) ? 0 : time / 3600000
           });
         });
-        let response = await freshbooksService.create(
-          "accounting/account/" +
-            this.$store.state.settings.freshbooks.account_id +
-            "/invoices/invoices",
-          request
-        );
+        let response = await freshbooksService.createInvoice(request);
         if (response.invoice) {
           for (let i = 0; i < invoiceMap[invoice].tasks.length; i++) {
-            response = await clickupService.update(
-              "/task/" + invoiceMap[invoice].tasks[i].id,
+            response = await clickupService.updateTask(
+              invoiceMap[invoice].tasks[i].id,
               {
                 status: "closed"
               }

@@ -146,9 +146,9 @@ export default {
     async setLocalSettings() {
       this.settings = Object.assign({}, this.$store.state.settings);
       if (this.settings.clickup) {
-        let response = await clickupService.get(
-          "/space/" + this.settings.clickup.space_id + "/folder?archived=false"
-        );
+        let response = await clickupService.getFolders({
+          archived: false
+        });
         this.folders = response.folders;
       }
     },

@@ -1,5 +1,6 @@
 import { store } from "./../store/index";
 import { SET_SNACK } from "../store/mutation-types";
+import apiService from "./api-service";
 
 const _apiHost = "https://api.clickup.com/api/v2";
 const _proxyUrl = "https://cors.beaumontwebdev.com:4856/";
@@ -16,7 +17,7 @@ async function request(url, params, method = "get") {
 
   if (params) {
     if (method === "GET") {
-      url += "?" + objectToQueryString(params);
+      url += "?" + apiService.objectToQueryString(params);
     } else {
       options.body = JSON.stringify(params);
     }
@@ -39,31 +40,24 @@ async function request(url, params, method = "get") {
   return result;
 }
 
-function objectToQueryString(obj) {
-  return Object.keys(obj)
-    .map(key => key + "=" + obj[key])
-    .join("&");
+async function getTasks(search) {
+  return await apiService.get(
+    "/team/" + store.state.settings.clickup.team_id + "/task",
+    search,
+    request
+  );
 }
 
-function get(url, params) {
-  return request(url, params);
+async function updateTask(id, data) {
+  return await apiService.update("/task/" + id, data, request);
 }
 
-function create(url, params) {
-  return request(url, params, "POST");
+async function getFolders(search) {
+  return await apiService.get(
+    "/space/" + store.state.settings.clickup.space_id + "/folder",
+    search,
+    request
+  );
 }
 
-function update(url, params) {
-  return request(url, params, "PUT");
-}
-
-function remove(url, params) {
-  return request(url, params, "DELETE");
-}
-
-export default {
-  get,
-  create,
-  update,
-  remove
-};
+export default { getTasks, getFolders, updateTask };
