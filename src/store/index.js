@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import {
-  SET_CURRENT_USER,
   CLEAR_DATA,
   SET_TASKS,
   SET_CLIENTS,
@@ -13,20 +12,14 @@ import {
 } from "./mutation-types";
 import clickupService from "./../utils/clickup-service";
 import freshbooksService from "./../utils/freshbooks-service";
+import user from "./modules/user";
 const fb = require("../firebaseConfig");
 const deepmerge = require("deepmerge");
 
 Vue.use(Vuex);
 
-fb.auth.onAuthStateChanged(user => {
-  if (user) {
-    store.commit(SET_CURRENT_USER, user);
-  }
-});
-
 export const store = new Vuex.Store({
   state: {
-    currentUser: null,
     settings: {},
     tasks: [],
     clients: [],
@@ -43,7 +36,6 @@ export const store = new Vuex.Store({
     loading: false
   },
   getters: {
-    loggedIn: state => state.currentUser !== null,
     clientName: state => val => {
       const client = state.clients.find(client => client.id === val);
       if (client) {
@@ -52,9 +44,6 @@ export const store = new Vuex.Store({
     }
   },
   mutations: {
-    [SET_CURRENT_USER](state, val) {
-      state.currentUser = val;
-    },
     [SET_TASKS](state, val) {
       state.tasks = val;
     },
@@ -65,7 +54,6 @@ export const store = new Vuex.Store({
       state.settings = val;
     },
     [CLEAR_DATA](state) {
-      state.currentUser = null;
       state.settings = {};
       state.tasks = [];
       state.clients = [];
@@ -110,9 +98,9 @@ export const store = new Vuex.Store({
         commit(SET_CLIENTS, response.clients);
       }
     },
-    async loadSettings({ commit, state }) {
+    async loadSettings({ commit, rootGetters }) {
       await fb.settingsCollection
-        .doc(state.currentUser.uid)
+        .doc(rootGetters["user/currentUserUid"])
         .get()
         .then(res => {
           commit(SET_SETTINGS, res.data());
@@ -138,5 +126,8 @@ export const store = new Vuex.Store({
       commit(CLEAR_SNACK);
     }
   },
-  modules: {}
+  modules: {
+    user
+  },
+  strict: process.env.NODE_ENV !== "production"
 });

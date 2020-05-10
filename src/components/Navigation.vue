@@ -40,7 +40,7 @@ import { CLEAR_DATA } from "../store/mutation-types";
 
 export default {
   computed: {
-    ...mapGetters(["loggedIn"])
+    ...mapGetters("user", ["loggedIn"])
   },
   data() {
     return {
@@ -48,11 +48,12 @@ export default {
     };
   },
   methods: {
-    logout() {
-      this.$fb.auth.signOut().then(() => {
-        this.$store.commit(CLEAR_DATA);
-        this.$router.push("login");
-      });
+    async logout() {
+      let response = await this.$store.dispatch("user/logout");
+      if (response) {
+        await this.$store.dispatch(CLEAR_DATA);
+        await this.$router.push("login");
+      }
     }
   },
   name: "Navigation"

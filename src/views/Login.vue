@@ -49,7 +49,6 @@
 
 <script>
 import { ValidationProvider, ValidationObserver } from "vee-validate";
-import { SET_CURRENT_USER } from "../store/mutation-types";
 
 export default {
   components: { ValidationProvider, ValidationObserver },
@@ -61,19 +60,18 @@ export default {
     };
   },
   methods: {
-    login() {
-      this.$fb.auth
-        .signInWithEmailAndPassword(this.username, this.password)
-        .then(user => {
-          this.$store.commit(SET_CURRENT_USER, user.user);
-          this.$emit("loadData");
-          this.$router.push("dashboard");
-        })
-        .catch(err => {
-          this.$refs.form.setErrors({
-            password: err.message
-          });
+    async login() {
+      let response = await this.$store.dispatch("user/login", {
+        username: this.username,
+        password: this.password
+      });
+      if (response.success) {
+        await this.$router.push("dashboard");
+      } else {
+        this.$refs.form.setErrors({
+          password: response.msg
         });
+      }
     },
     togglePassword() {
       this.showPassword = !this.showPassword;

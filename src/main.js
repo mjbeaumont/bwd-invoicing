@@ -10,6 +10,7 @@ import "@mdi/font/css/materialdesignicons.css";
 import "./utils/validation";
 import "./utils/filters.js";
 import FirebasePlugin from "./utils/firebase-plugin";
+import { SET_CURRENT_USER, SET_LOADING } from "./store/mutation-types";
 
 Vue.config.productionTip = false;
 
@@ -23,6 +24,20 @@ fb.auth.onAuthStateChanged(user => {
       router,
       store,
       vuetify,
+      async created() {
+        fb.auth.onAuthStateChanged(async function(user) {
+          if (user) {
+            store.commit("user/" + SET_CURRENT_USER, user);
+            store.commit(SET_LOADING, true);
+            await store.dispatch("loadSettings");
+            await Promise.all([
+              store.dispatch("loadClients"),
+              store.dispatch("loadTasks")
+            ]);
+            store.commit(SET_LOADING, false);
+          }
+        });
+      },
       render: h => h(App)
     }).$mount("#app");
   }
