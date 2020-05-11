@@ -1,14 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import {
-  CLEAR_DATA,
-  CLEAR_SNACK,
-  SET_LOADING,
-  SET_SELECTED,
-  SET_SETTINGS,
-  SET_TASKS,
-  SET_CLIENTS
-} from "./mutation-types";
+import pathify, { make } from "vuex-pathify";
 import user from "./modules/user";
 import task from "./modules/task";
 import client from "./modules/client";
@@ -17,24 +9,28 @@ import snack from "./modules/snack";
 
 Vue.use(Vuex);
 
-export const store = new Vuex.Store({
-  state: {
+const state = () => {
+  return {
     loading: false
-  },
-  mutations: {
-    [SET_LOADING](state, val) {
-      state.loading = val;
-    }
-  },
-  actions: {
-    clearData({ commit }) {
-      commit("setting/" + SET_SETTINGS, {});
-      commit("task/" + SET_TASKS, []);
-      commit("task/" + SET_SELECTED, []);
-      commit("client/" + SET_CLIENTS, []);
-      commit("snack/" + CLEAR_SNACK);
-    }
-  },
+  };
+};
+
+const mutations = make.mutations(state);
+
+const actions = {
+  clearData({ commit }) {
+    commit("setting/SET_SETTINGS", {});
+    commit("task/SET_TASKS", []);
+    commit("task/SET_SELECTED", []);
+    commit("client/SET_CLIENTS", []);
+    commit("snack/CLEAR_SNACK");
+  }
+};
+
+export const store = new Vuex.Store({
+  state,
+  mutations,
+  actions,
   modules: {
     user,
     task,
@@ -42,5 +38,6 @@ export const store = new Vuex.Store({
     setting,
     snack
   },
-  strict: process.env.NODE_ENV !== "production"
+  strict: process.env.NODE_ENV !== "production",
+  plugins: [pathify.plugin]
 });

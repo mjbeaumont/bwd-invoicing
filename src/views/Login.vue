@@ -49,6 +49,7 @@
 
 <script>
 import { ValidationProvider, ValidationObserver } from "vee-validate";
+import { dispatch } from "vuex-pathify";
 
 export default {
   components: { ValidationProvider, ValidationObserver },
@@ -61,7 +62,7 @@ export default {
   },
   methods: {
     async login() {
-      let response = await this.$store.dispatch("user/login", {
+      let response = await dispatch("user/login", {
         username: this.username,
         password: this.password
       });

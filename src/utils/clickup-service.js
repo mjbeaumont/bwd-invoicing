@@ -1,5 +1,4 @@
 import { store } from "./../store/index";
-import { SET_SNACK } from "../store/mutation-types";
 import apiService from "./api-service";
 
 const _apiHost = "https://api.clickup.com/api/v2";
@@ -10,7 +9,7 @@ async function request(url, params, method = "get") {
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append(
     "Authorization",
-    store.state.setting.settings.clickup.auth_key
+    store.get("setting/settings@clickup.auth_key")
   );
 
   const options = {
@@ -29,7 +28,7 @@ async function request(url, params, method = "get") {
   const response = await fetch(_proxyUrl + _apiHost + url, options);
 
   if (response.status !== 200) {
-    store.commit("snack/" + SET_SNACK, {
+    store.set("snack/snack", {
       snackbar: true,
       text:
         "Clickup Error: " + response.status + "(" + response.statusText + ")",
@@ -45,7 +44,7 @@ async function request(url, params, method = "get") {
 
 async function getTasks(search) {
   return await apiService.get(
-    "/team/" + store.state.setting.settings.clickup.team_id + "/task",
+    "/team/" + store.get("setting.settings@clickup.team_id") + "/task",
     search,
     request
   );
@@ -57,7 +56,7 @@ async function updateTask(id, data) {
 
 async function getFolders(search) {
   return await apiService.get(
-    "/space/" + store.state.setting.settings.clickup.space_id + "/folder",
+    "/space/" + store.get("setting.settings@clickup.space_id") + "/folder",
     search,
     request
   );

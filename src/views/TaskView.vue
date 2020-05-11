@@ -98,17 +98,17 @@
 >
 
 <script>
-import { mapState } from "vuex";
-import { SET_SNACK, SET_SELECTED } from "../store/mutation-types";
+import { dispatch, get } from "vuex-pathify";
 import freshbooksService from "../utils/freshbooks-service";
 import clickupService from "../utils/clickup-service";
+import template from "../utils/template";
 export default {
   computed: {
-    ...mapState("client", ["clients"]),
-    ...mapState("setting", ["settings"]),
-    ...mapState(["loading"]),
+    clients: get("client/clients"),
+    settings: get("setting/settings"),
+    loading: get("loading"),
     tasks() {
-      return this.$store.state.task.tasks.map(task => {
+      return this.$store.get("task/tasks").map(task => {
         return {
           id: task.id,
           project: task.folder.name,
@@ -131,22 +131,8 @@ export default {
       editedIndex: -1,
       confirmDialog: false,
       dialog: false,
-      defaultItem: {
-        id: null,
-        project: "",
-        name: "",
-        time: 0,
-        client: 0,
-        includeProjectName: false
-      },
-      editedItem: {
-        id: null,
-        project: "",
-        name: "",
-        time: 0,
-        client: 0,
-        includeProjectName: false
-      },
+      defaultItem: template.lineItem(),
+      editedItem: template.lineItem(),
       headers: [
         {
           text: "Project Name",
@@ -190,10 +176,10 @@ export default {
     confirm() {
       const valid = this.selected.every(task => task.client);
       if (valid) {
-        this.$store.commit("task/" + SET_SELECTED, this.selected);
+        this.$store.set("task/selected", this.selected);
         this.confirmDialog = true;
       } else {
-        this.$store.commit("snack/" + SET_SNACK, {
+        this.$store.set("snack/snack", {
           snackbar: true,
           text: "You must select a client for each selected task",
           timeout: 6000,
@@ -281,9 +267,9 @@ export default {
       });
     },
     async success(successful) {
-      await this.$store.dispatch("task/loadTasks");
+      await dispatch("task/loadTasks");
       this.confirmDialog = false;
-      this.$store.commit("snack/" + SET_SNACK, {
+      this.$store.set("snack/snack", {
         snackbar: true,
         text: successful + " tasks were added to invoices successfully.",
         timeout: 6000,

@@ -1,4 +1,3 @@
-import { SET_CURRENT_USER } from "../mutation-types";
 const fb = require("../../firebaseConfig");
 
 const state = () => {
@@ -13,7 +12,7 @@ const getters = {
 };
 
 const mutations = {
-  [SET_CURRENT_USER](state, val) {
+  SET_CURRENT_USER(state, val) {
     state.currentUser = val ? val.toJSON() : val;
   }
 };
@@ -30,7 +29,7 @@ const actions = {
       return { success: false, msg: err.message };
     }
 
-    commit(SET_CURRENT_USER, response.user);
+    commit("SET_CURRENT_USER", response.user);
     return { success: true, msg: "" };
   },
   async logout({ commit }) {
@@ -41,7 +40,7 @@ const actions = {
       return false;
     }
 
-    commit(SET_CURRENT_USER, null);
+    commit("SET_CURRENT_USER", null);
     return true;
   }
 };

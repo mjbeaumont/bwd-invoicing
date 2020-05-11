@@ -105,12 +105,13 @@
   ></template
 >
 <script>
-import { SET_SETTINGS, SET_SNACK } from "../store/mutation-types";
+import { dispatch } from "vuex-pathify";
+import { clone } from "../utils/functions";
 import clickupService from "../utils/clickup-service";
 export default {
   computed: {
     clients() {
-      return this.$store.state.client.clients.map(client => {
+      return this.$store.get("client/clients").map(client => {
         return {
           id: client.id,
           organization: client.organization
@@ -130,7 +131,7 @@ export default {
   async created() {
     await this.setLocalSettings();
     this.$store.subscribe(mutation => {
-      if (mutation.type === "setting/" + SET_SETTINGS) {
+      if (mutation.type === "setting/SET_SETTINGS") {
         this.setLocalSettings();
       }
     });
@@ -144,7 +145,7 @@ export default {
       });
     },
     async setLocalSettings() {
-      this.settings = Object.assign({}, this.$store.state.setting.settings);
+      this.settings = clone(this.$store.get("setting/settings"));
       if (this.settings.clickup) {
         let response = await clickupService.getFolders({
           archived: false
@@ -159,11 +160,11 @@ export default {
       this.settings.projects.splice(index, 1);
     },
     save() {
-      this.$store.dispatch("setting/updateSettings", {
+      dispatch("setting/updateSettings", {
         val: this.settings,
         mergeType: "overwrite"
       });
-      this.$store.commit("snack/" + SET_SNACK, {
+      this.$store.set("snack/snack", {
         snackbar: true,
         text: "Settings saved successfully",
         timeout: 6000,

@@ -1,16 +1,14 @@
 import template from "../../utils/template";
-import { CLEAR_SNACK, SET_SNACK } from "../mutation-types";
+import { make } from "vuex-pathify";
 
 const state = {
-  snack: template.snack
+  snack: template.snack()
 };
 
 const mutations = {
-  [SET_SNACK](state, val) {
-    state.snack = val;
-  },
-  [CLEAR_SNACK](state) {
-    state.snack = template.snack;
+  ...make.mutations(state),
+  CLEAR_SNACK(state) {
+    state.snack = template.snack();
   }
 };
 

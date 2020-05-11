@@ -1,5 +1,4 @@
 import { store } from "./../store/index";
-import { SET_SNACK } from "./../store/mutation-types";
 import apiService from "./api-service";
 
 const _apiHost = "https://api.freshbooks.com/";
@@ -10,12 +9,12 @@ async function request(url, params, method = "get") {
 
   // refresh the access token if it is expiring in one hour or less
   if (
-    store.state.setting.settings.freshbooks.expires <
+    store.get("setting.settings@freshbooks.expires") <
     Math.round(new Date().getTime() / 1000)
   ) {
     access_token = await refreshToken();
   } else {
-    access_token = store.state.setting.settings.freshbooks.access_token;
+    access_token = store.get("setting.settings@freshbooks.access_token");
   }
 
   const myHeaders = new Headers();
@@ -38,7 +37,7 @@ async function request(url, params, method = "get") {
   const response = await fetch(_proxyUrl + _apiHost + url, options);
 
   if (response.status !== 200) {
-    store.commit("snack/" + SET_SNACK, {
+    store.set("snack/snack", {
       snackbar: true,
       text:
         "Freshbooks Error: " +
@@ -59,7 +58,7 @@ async function request(url, params, method = "get") {
 async function createInvoice(data) {
   return await apiService.create(
     "accounting/account/" +
-      store.state.setting.settings.freshbooks.account_id +
+      store.get("setting.settings@freshbooks.account_id") +
       "/invoices/invoices",
     data,
     request
@@ -69,7 +68,7 @@ async function createInvoice(data) {
 async function getClients(search) {
   return await apiService.get(
     "/accounting/account/" +
-      store.state.setting.settings.freshbooks.account_id +
+      store.get("setting.settings@freshbooks.account_id") +
       "/users/clients",
     search,
     request
@@ -84,10 +83,10 @@ async function refreshToken() {
     method: "POST",
     body: JSON.stringify({
       grant_type: "refresh_token",
-      client_secret: store.state.setting.settings.freshbooks.client_secret,
-      client_id: store.state.setting.settings.freshbooks.client_id,
-      refresh_token: store.state.setting.settings.freshbooks.refresh_token,
-      redirect_uri: store.state.setting.settings.freshbooks.redirect_uri
+      client_secret: store.get("setting.settings@freshbooks.client_secret"),
+      client_id: store.get("setting.settings@freshbooks.client_id"),
+      refresh_token: store.get("setting.settings@freshbooks.refresh_token"),
+      redirect_uri: store.get("setting.settings@freshbooks.redirect_uri")
     })
   });
 

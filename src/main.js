@@ -2,6 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import { store } from "./store";
+import { dispatch } from "vuex-pathify";
 import "./registerServiceWorker";
 const fb = require("./firebaseConfig.js");
 import vuetify from "./plugins/vuetify";
@@ -10,7 +11,6 @@ import "@mdi/font/css/materialdesignicons.css";
 import "./utils/validation";
 import "./utils/filters.js";
 import FirebasePlugin from "./utils/firebase-plugin";
-import { SET_CURRENT_USER, SET_LOADING } from "./store/mutation-types";
 
 Vue.config.productionTip = false;
 
@@ -27,14 +27,14 @@ fb.auth.onAuthStateChanged(user => {
       async created() {
         fb.auth.onAuthStateChanged(async function(user) {
           if (user) {
-            store.commit("user/" + SET_CURRENT_USER, user);
-            store.commit(SET_LOADING, true);
+            store.set("user/currentUser", user);
+            store.set("loading", true);
             await store.dispatch("setting/loadSettings");
             await Promise.all([
-              store.dispatch("client/loadClients"),
-              store.dispatch("task/loadTasks")
+              dispatch("client/loadClients"),
+              dispatch("task/loadTasks")
             ]);
-            store.commit(SET_LOADING, false);
+            store.set("loading", false);
           }
         });
       },

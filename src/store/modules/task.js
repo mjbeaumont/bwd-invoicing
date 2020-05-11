@@ -1,5 +1,5 @@
-import { SET_SELECTED, SET_TASKS } from "../mutation-types";
 import clickupService from "../../utils/clickup-service";
+import { make } from "vuex-pathify";
 
 const state = () => {
   return {
@@ -8,14 +8,7 @@ const state = () => {
   };
 };
 
-const mutations = {
-  [SET_TASKS](state, val) {
-    state.tasks = val;
-  },
-  [SET_SELECTED](state, val) {
-    state.selected = val;
-  }
-};
+const mutations = make.mutations(state);
 
 const actions = {
   async loadTasks({ commit }) {
@@ -24,7 +17,7 @@ const actions = {
     });
     if (response.tasks && response.tasks.length) {
       const tasks = response.tasks.filter(task => task.time_spent > 0);
-      commit(SET_TASKS, tasks);
+      commit("SET_TASKS", tasks);
     }
   }
 };

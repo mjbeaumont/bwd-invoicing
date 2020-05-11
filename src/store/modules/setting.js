@@ -1,6 +1,7 @@
+import { make } from "vuex-pathify";
+
 const fb = require("../../firebaseConfig");
 const deepmerge = require("deepmerge");
-import { SET_SETTINGS } from "../mutation-types";
 
 const state = () => {
   return {
@@ -8,11 +9,7 @@ const state = () => {
   };
 };
 
-const mutations = {
-  [SET_SETTINGS](state, val) {
-    state.settings = val;
-  }
-};
+const mutations = make.mutations(state);
 
 const actions = {
   async loadSettings({ commit, rootGetters }) {
@@ -20,22 +17,22 @@ const actions = {
       .doc(rootGetters["user/currentUserUid"])
       .get()
       .then(res => {
-        commit(SET_SETTINGS, res.data());
+        commit("SET_SETTINGS", res.data());
       })
       .catch(err => {
         console.log(err);
       });
   },
-  async updateSettings({ commit, state }, payload) {
+  async updateSettings({ commit, rootState, rootGetters }, payload) {
     const newSettings =
       payload.mergeType === "overwrite"
         ? payload.val
-        : deepmerge(state.settings, payload.val);
+        : deepmerge(rootState.setting.settings, payload.val);
     await fb.settingsCollection
-      .doc(state.currentUser.uid)
+      .doc(rootGetters["user/currentUserUid"])
       .update(newSettings)
       .then(() => {
-        commit(SET_SETTINGS, newSettings);
+        commit("SET_SETTINGS", newSettings);
       });
   }
 };

@@ -35,12 +35,11 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { CLEAR_DATA } from "../store/mutation-types";
+import { get, dispatch } from "vuex-pathify";
 
 export default {
   computed: {
-    ...mapGetters("user", ["loggedIn"])
+    loggedIn: get("user/loggedIn")
   },
   data() {
     return {
@@ -49,9 +48,9 @@ export default {
   },
   methods: {
     async logout() {
-      let response = await this.$store.dispatch("user/logout");
+      let response = await dispatch("user/logout");
       if (response) {
-        await this.$store.dispatch(CLEAR_DATA);
+        await dispatch("clearData");
         await this.$router.push("login");
       }
     }

@@ -1,4 +1,4 @@
-import { SET_CLIENTS } from "../mutation-types";
+import { make } from "vuex-pathify";
 import freshbooksService from "../../utils/freshbooks-service";
 
 const state = () => {
@@ -16,11 +16,7 @@ const getters = {
   }
 };
 
-const mutations = {
-  [SET_CLIENTS](state, val) {
-    state.clients = val;
-  }
-};
+const mutations = make.mutations(state);
 
 const actions = {
   async loadClients({ commit }) {
@@ -29,7 +25,7 @@ const actions = {
       ["search[vis_state]"]: 0
     });
     if (response.clients && response.clients.length) {
-      commit(SET_CLIENTS, response.clients);
+      commit("SET_CLIENTS", response.clients);
     }
   }
 };

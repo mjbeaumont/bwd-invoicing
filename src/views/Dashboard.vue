@@ -51,11 +51,11 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { get } from "vuex-pathify";
 export default {
   computed: {
-    ...mapState("task", ["tasks"]),
-    ...mapState(["loading"]),
+    tasks: get("task/tasks"),
+    loading: get("loading"),
     countTasks() {
       return this.tasks.length;
     },

@@ -8,7 +8,7 @@
     </v-content>
     <v-snackbar
       v-model="snack.snackbar"
-      :timeout="snack.timeout"
+      :timeout="0"
       :color="snack.color"
       :bottom="snack.bottom"
       :top="snack.top"
@@ -20,16 +20,14 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { get } from "vuex-pathify";
 
 import Navigation from "./components/Navigation";
 export default {
   components: { Navigation },
   computed: {
-    ...mapState("user", ["currentUser"]),
-    snack() {
-      return this.$store.state.snack;
-    }
+    currentUser: get("user/currentUser"),
+    snack: get("snack/snack")
   }
 };
 </script>
