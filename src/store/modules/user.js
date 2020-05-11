@@ -9,7 +9,7 @@ const state = () => {
 
 const getters = {
   loggedIn: state => state.currentUser !== null,
-  currentUserUid: state => state.currentUser.uid
+  currentUserUid: state => (state.currentUser ? state.currentUser.uid : null)
 };
 
 const mutations = {
