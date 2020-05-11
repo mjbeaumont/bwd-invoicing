@@ -1,6 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { CLEAR_DATA, CLEAR_SNACK, SET_LOADING } from "./mutation-types";
+import {
+  CLEAR_DATA,
+  CLEAR_SNACK,
+  SET_LOADING,
+  SET_SELECTED,
+  SET_SETTINGS,
+  SET_TASKS,
+  SET_CLIENTS
+} from "./mutation-types";
 import user from "./modules/user";
 import task from "./modules/task";
 import client from "./modules/client";
@@ -25,7 +33,10 @@ export const store = new Vuex.Store({
   },
   actions: {
     clearData({ commit }) {
-      commit(CLEAR_DATA);
+      commit("setting/" + SET_SETTINGS, {});
+      commit("task/" + SET_TASKS, []);
+      commit("task/" + SET_SELECTED, []);
+      commit("client/" + SET_CLIENTS, []);
       commit("snack/" + CLEAR_SNACK);
     }
   },
