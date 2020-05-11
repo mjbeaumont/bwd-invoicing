@@ -186,7 +186,7 @@ export default {
     confirm() {
       const valid = this.selected.every(task => task.client);
       if (valid) {
-        this.$store.commit(SET_SELECTED, this.selected);
+        this.$store.commit("task/" + SET_SELECTED, this.selected);
         this.confirmDialog = true;
       } else {
         this.$store.commit(SET_SNACK, {
@@ -277,7 +277,7 @@ export default {
       });
     },
     async success(successful) {
-      await this.$store.dispatch("loadTasks");
+      await this.$store.dispatch("task/loadTasks");
       this.confirmDialog = false;
       this.$store.commit(SET_SNACK, {
         snackbar: true,
