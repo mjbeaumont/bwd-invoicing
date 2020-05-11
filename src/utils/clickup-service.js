@@ -29,7 +29,7 @@ async function request(url, params, method = "get") {
   const response = await fetch(_proxyUrl + _apiHost + url, options);
 
   if (response.status !== 200) {
-    store.commit(SET_SNACK, {
+    store.commit("snack/" + SET_SNACK, {
       snackbar: true,
       text:
         "Clickup Error: " + response.status + "(" + response.statusText + ")",

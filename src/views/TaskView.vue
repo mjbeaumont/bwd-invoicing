@@ -193,7 +193,7 @@ export default {
         this.$store.commit("task/" + SET_SELECTED, this.selected);
         this.confirmDialog = true;
       } else {
-        this.$store.commit(SET_SNACK, {
+        this.$store.commit("snack/" + SET_SNACK, {
           snackbar: true,
           text: "You must select a client for each selected task",
           timeout: 6000,
@@ -283,7 +283,7 @@ export default {
     async success(successful) {
       await this.$store.dispatch("task/loadTasks");
       this.confirmDialog = false;
-      this.$store.commit(SET_SNACK, {
+      this.$store.commit("snack/" + SET_SNACK, {
         snackbar: true,
         text: successful + " tasks were added to invoices successfully.",
         timeout: 6000,

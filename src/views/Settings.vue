@@ -163,7 +163,7 @@ export default {
         val: this.settings,
         mergeType: "overwrite"
       });
-      this.$store.commit(SET_SNACK, {
+      this.$store.commit("snack/" + SET_SNACK, {
         snackbar: true,
         text: "Settings saved successfully",
         timeout: 6000,

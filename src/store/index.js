@@ -1,30 +1,16 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import {
-  CLEAR_DATA,
-  SET_SNACK,
-  CLEAR_SNACK,
-  SET_LOADING
-} from "./mutation-types";
+import { CLEAR_DATA, CLEAR_SNACK, SET_LOADING } from "./mutation-types";
 import user from "./modules/user";
 import task from "./modules/task";
 import client from "./modules/client";
 import setting from "./modules/setting";
+import snack from "./modules/snack";
 
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    settings: {},
-    snack: {
-      snackbar: false,
-      top: null,
-      bottom: null,
-      left: null,
-      right: null,
-      timeout: null,
-      color: ""
-    },
     loading: false
   },
   mutations: {
@@ -33,20 +19,6 @@ export const store = new Vuex.Store({
       state.tasks = [];
       state.clients = [];
     },
-    [SET_SNACK](state, val) {
-      state.snack = val;
-    },
-    [CLEAR_SNACK](state) {
-      state.snack = {
-        snackbar: false,
-        top: null,
-        bottom: null,
-        left: null,
-        right: null,
-        timeout: null,
-        color: ""
-      };
-    },
     [SET_LOADING](state, val) {
       state.loading = val;
     }
@@ -54,14 +26,15 @@ export const store = new Vuex.Store({
   actions: {
     clearData({ commit }) {
       commit(CLEAR_DATA);
-      commit(CLEAR_SNACK);
+      commit("snack/" + CLEAR_SNACK);
     }
   },
   modules: {
     user,
     task,
     client,
-    setting
+    setting,
+    snack
   },
   strict: process.env.NODE_ENV !== "production"
 });
