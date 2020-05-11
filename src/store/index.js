@@ -22,11 +22,6 @@ export const store = new Vuex.Store({
     loading: false
   },
   mutations: {
-    [CLEAR_DATA](state) {
-      state.settings = {};
-      state.tasks = [];
-      state.clients = [];
-    },
     [SET_LOADING](state, val) {
       state.loading = val;
     }
