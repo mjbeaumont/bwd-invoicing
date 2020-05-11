@@ -2,7 +2,6 @@ import Vue from "vue";
 import Vuex from "vuex";
 import {
   CLEAR_DATA,
-  SET_SETTINGS,
   SET_SNACK,
   CLEAR_SNACK,
   SET_LOADING
@@ -10,8 +9,7 @@ import {
 import user from "./modules/user";
 import task from "./modules/task";
 import client from "./modules/client";
-const fb = require("../firebaseConfig");
-const deepmerge = require("deepmerge");
+import setting from "./modules/setting";
 
 Vue.use(Vuex);
 
@@ -30,9 +28,6 @@ export const store = new Vuex.Store({
     loading: false
   },
   mutations: {
-    [SET_SETTINGS](state, val) {
-      state.settings = val;
-    },
     [CLEAR_DATA](state) {
       state.settings = {};
       state.tasks = [];
@@ -57,29 +52,6 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    async loadSettings({ commit, rootGetters }) {
-      await fb.settingsCollection
-        .doc(rootGetters["user/currentUserUid"])
-        .get()
-        .then(res => {
-          commit(SET_SETTINGS, res.data());
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
-    async updateSettings({ commit, state }, payload) {
-      const newSettings =
-        payload.mergeType === "overwrite"
-          ? payload.val
-          : deepmerge(state.settings, payload.val);
-      await fb.settingsCollection
-        .doc(state.currentUser.uid)
-        .update(newSettings)
-        .then(() => {
-          commit(SET_SETTINGS, newSettings);
-        });
-    },
     clearData({ commit }) {
       commit(CLEAR_DATA);
       commit(CLEAR_SNACK);
@@ -88,7 +60,8 @@ export const store = new Vuex.Store({
   modules: {
     user,
     task,
-    client
+    client,
+    setting
   },
   strict: process.env.NODE_ENV !== "production"
 });

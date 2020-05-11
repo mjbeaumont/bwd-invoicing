@@ -105,7 +105,8 @@ import clickupService from "../utils/clickup-service";
 export default {
   computed: {
     ...mapState("client", ["clients"]),
-    ...mapState(["loading", "settings"]),
+    ...mapState("setting", ["settings"]),
+    ...mapState(["loading"]),
     tasks() {
       return this.$store.state.task.tasks.map(task => {
         return {

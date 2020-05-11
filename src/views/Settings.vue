@@ -110,7 +110,7 @@ import clickupService from "../utils/clickup-service";
 export default {
   computed: {
     clients() {
-      return this.$store.state.clients.map(client => {
+      return this.$store.state.client.clients.map(client => {
         return {
           id: client.id,
           organization: client.organization
@@ -128,9 +128,9 @@ export default {
     };
   },
   async created() {
-    this.setLocalSettings();
+    await this.setLocalSettings();
     this.$store.subscribe(mutation => {
-      if (mutation.type === SET_SETTINGS) {
+      if (mutation.type === "setting/" + SET_SETTINGS) {
         this.setLocalSettings();
       }
     });
@@ -144,7 +144,7 @@ export default {
       });
     },
     async setLocalSettings() {
-      this.settings = Object.assign({}, this.$store.state.settings);
+      this.settings = Object.assign({}, this.$store.state.setting.settings);
       if (this.settings.clickup) {
         let response = await clickupService.getFolders({
           archived: false
@@ -159,7 +159,7 @@ export default {
       this.settings.projects.splice(index, 1);
     },
     save() {
-      this.$store.dispatch("updateSettings", {
+      this.$store.dispatch("setting/updateSettings", {
         val: this.settings,
         mergeType: "overwrite"
       });

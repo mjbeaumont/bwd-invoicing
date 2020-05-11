@@ -29,7 +29,7 @@ fb.auth.onAuthStateChanged(user => {
           if (user) {
             store.commit("user/" + SET_CURRENT_USER, user);
             store.commit(SET_LOADING, true);
-            await store.dispatch("loadSettings");
+            await store.dispatch("setting/loadSettings");
             await Promise.all([
               store.dispatch("client/loadClients"),
               store.dispatch("task/loadTasks")

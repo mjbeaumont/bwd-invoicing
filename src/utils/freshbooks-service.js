@@ -10,12 +10,12 @@ async function request(url, params, method = "get") {
 
   // refresh the access token if it is expiring in one hour or less
   if (
-    store.state.settings.freshbooks.expires <
+    store.state.setting.settings.freshbooks.expires <
     Math.round(new Date().getTime() / 1000)
   ) {
     access_token = await refreshToken();
   } else {
-    access_token = store.state.settings.freshbooks.access_token;
+    access_token = store.state.setting.settings.freshbooks.access_token;
   }
 
   const myHeaders = new Headers();
@@ -59,7 +59,7 @@ async function request(url, params, method = "get") {
 async function createInvoice(data) {
   return await apiService.create(
     "accounting/account/" +
-      store.state.settings.freshbooks.account_id +
+      store.state.setting.settings.freshbooks.account_id +
       "/invoices/invoices",
     data,
     request
@@ -69,7 +69,7 @@ async function createInvoice(data) {
 async function getClients(search) {
   return await apiService.get(
     "/accounting/account/" +
-      store.state.settings.freshbooks.account_id +
+      store.state.setting.settings.freshbooks.account_id +
       "/users/clients",
     search,
     request
@@ -84,10 +84,10 @@ async function refreshToken() {
     method: "POST",
     body: JSON.stringify({
       grant_type: "refresh_token",
-      client_secret: store.state.settings.freshbooks.client_secret,
-      client_id: store.state.settings.freshbooks.client_id,
-      refresh_token: store.state.settings.freshbooks.refresh_token,
-      redirect_uri: store.state.settings.freshbooks.redirect_uri
+      client_secret: store.state.setting.settings.freshbooks.client_secret,
+      client_id: store.state.setting.settings.freshbooks.client_id,
+      refresh_token: store.state.setting.settings.freshbooks.refresh_token,
+      redirect_uri: store.state.setting.settings.freshbooks.redirect_uri
     })
   });
 
@@ -99,7 +99,10 @@ async function refreshToken() {
       expires: result.expires_in + result.created_at
     }
   };
-  await store.dispatch("updateSettings", { val: val, mergeType: "merge" });
+  await store.dispatch("setting/updateSettings", {
+    val: val,
+    mergeType: "merge"
+  });
 
   return result.access_token;
 }
