@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { get } from "vuex-pathify";
+import { get, commit } from "vuex-pathify";
 
 import Navigation from "./components/Navigation";
 export default {
@@ -28,6 +28,16 @@ export default {
   computed: {
     currentUser: get("user/currentUser"),
     snack: get("snack/snack")
+  },
+  watch: {
+    snack: {
+      deep: true,
+      handler() {
+        setTimeout(() => {
+          commit("snack/CLEAR_SNACK");
+        }, this.snack.timeout);
+      }
+    }
   }
 };
 </script>
