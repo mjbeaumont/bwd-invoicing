@@ -104,9 +104,10 @@ import freshbooksService from "../utils/freshbooks-service";
 import clickupService from "../utils/clickup-service";
 export default {
   computed: {
-    ...mapState(["clients", "loading", "settings"]),
+    ...mapState("client", ["clients"]),
+    ...mapState(["loading", "settings"]),
     tasks() {
-      return this.$store.state.tasks.map(task => {
+      return this.$store.state.task.tasks.map(task => {
         return {
           id: task.id,
           project: task.folder.name,
@@ -181,7 +182,9 @@ export default {
       this.dialog = true;
     },
     getClientName(id) {
-      return id ? this.$store.getters.clientName(id) : "None selected";
+      return id
+        ? this.$store.getters["client/clientName"](id)
+        : "None selected";
     },
     confirm() {
       const valid = this.selected.every(task => task.client);

@@ -54,7 +54,8 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["tasks", "loading"]),
+    ...mapState("task", ["tasks"]),
+    ...mapState(["loading"]),
     countTasks() {
       return this.tasks.length;
     },
