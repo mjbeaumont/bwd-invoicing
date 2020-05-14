@@ -7,10 +7,7 @@ const _proxyUrl = "https://cors.beaumontwebdev.com:4856/";
 async function request(url, params, method = "get") {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
-  myHeaders.append(
-    "Authorization",
-    store.get("setting/settings@clickup.auth_key")
-  );
+  myHeaders.append("Authorization", store.get("setting/clickup@auth_key"));
 
   const options = {
     method,
@@ -44,7 +41,7 @@ async function request(url, params, method = "get") {
 
 async function getTasks(search) {
   return await apiService.get(
-    "/team/" + store.get("setting.settings@clickup.team_id") + "/task",
+    "/team/" + store.get("setting/clickup@team_id") + "/task",
     search,
     request
   );
@@ -56,7 +53,7 @@ async function updateTask(id, data) {
 
 async function getFolders(search) {
   return await apiService.get(
-    "/space/" + store.get("setting.settings@clickup.space_id") + "/folder",
+    "/space/" + store.get("setting/clickup@space_id") + "/folder",
     search,
     request
   );

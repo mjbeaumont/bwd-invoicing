@@ -105,7 +105,7 @@ import template from "../utils/template";
 export default {
   computed: {
     clients: get("client/clients"),
-    settings: get("setting/settings"),
+    projectSettings: get("setting/projects"),
     loading: get("loading"),
     tasks() {
       return this.$store.get("task/tasks").map(task => {
@@ -255,7 +255,7 @@ export default {
     },
     setDefaults() {
       this.tasks.forEach(task => {
-        const setting = this.settings.projects.find(
+        const setting = this.projectSettings.find(
           project => project.name === task.project
         );
         if (setting) {

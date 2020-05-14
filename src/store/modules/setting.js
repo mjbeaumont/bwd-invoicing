@@ -1,39 +1,54 @@
 import { make } from "vuex-pathify";
 
 const fb = require("../../firebaseConfig");
-const deepmerge = require("deepmerge");
+import template from "../../utils/template";
+import clickupService from "../../utils/clickup-service";
 
 const state = () => {
-  return {
-    settings: {}
-  };
+  return template.settings();
 };
 
-const mutations = make.mutations(state);
+const mutations = {
+  ...make.mutations(state),
+  ADD_PROJECT(state) {
+    state.projects.push(template.projectSetting());
+  },
+  REMOVE_PROJECT(state, index) {
+    state.projects.splice(index, 1);
+  }
+};
 
 const actions = {
   async loadSettings({ commit, rootGetters }) {
-    await fb.settingsCollection
-      .doc(rootGetters["user/currentUserUid"])
-      .get()
-      .then(res => {
-        commit("SET_SETTINGS", res.data());
-      })
-      .catch(err => {
-        console.log(err);
+    try {
+      const res = await fb.settingsCollection
+        .doc(rootGetters["user/currentUserUid"])
+        .get();
+      const settings = res.data();
+      commit("SET_CLICKUP", settings.clickup);
+      commit("SET_FRESHBOOKS", settings.freshbooks);
+      commit("SET_PROJECTS", settings.projects);
+      const response = await clickupService.getFolders({
+        archived: false
       });
+      commit("SET_FOLDERS", response.folders);
+    } catch (err) {
+      console.log(err);
+    }
   },
-  async updateSettings({ commit, rootState, rootGetters }, payload) {
-    const newSettings =
-      payload.mergeType === "overwrite"
-        ? payload.val
-        : deepmerge(rootState.setting.settings, payload.val);
-    await fb.settingsCollection
-      .doc(rootGetters["user/currentUserUid"])
-      .update(newSettings)
-      .then(() => {
-        commit("SET_SETTINGS", newSettings);
-      });
+  async saveSettings({ rootGetters, state }) {
+    const currentSettings = {
+      clickup: state.clickup,
+      freshbooks: state.freshbooks,
+      projects: state.projects
+    };
+    try {
+      await fb.settingsCollection
+        .doc(rootGetters["user/currentUserUid"])
+        .update(currentSettings);
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
 

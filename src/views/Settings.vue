@@ -2,21 +2,22 @@
   <v-row
     ><v-col cols="12">
       <v-expansion-panels multiple
-        ><v-expansion-panel v-if="settings.clickup">
+        ><v-expansion-panel>
           <v-expansion-panel-header>Clickup Settings</v-expansion-panel-header>
           <v-expansion-panel-content
             ><v-row
               ><v-col cols="12"
                 ><v-text-field
-                  v-model="settings.clickup.auth_key"
+                  v-model="auth_key"
                   label="Personal API Token"
                 ></v-text-field
-                ><v-text-field
-                  v-model="settings.clickup.team_id"
-                  label="Team ID"
+                ><v-text-field v-model="team_id" label="Team ID"></v-text-field>
+                <v-text-field
+                  v-model="space_id"
+                  label="Space ID"
                 ></v-text-field> </v-col></v-row
           ></v-expansion-panel-content> </v-expansion-panel
-        ><v-expansion-panel v-if="settings.freshbooks">
+        ><v-expansion-panel>
           <v-expansion-panel-header
             >Freshbooks Settings</v-expansion-panel-header
           >
@@ -24,43 +25,44 @@
             ><v-row
               ><v-col cols="12"
                 ><v-text-field
-                  v-model="settings.freshbooks.access_token"
+                  v-model="access_token"
                   label="Access Token"
                 ></v-text-field
                 ><v-text-field
-                  v-model="settings.freshbooks.client_id"
+                  v-model="client_id"
                   label="Client ID"
                 ></v-text-field>
                 <v-text-field
-                  v-model="settings.freshbooks.client_secret"
+                  v-model="client_secret"
                   label="Client Secret"
                 ></v-text-field
                 ><v-text-field
-                  v-model="settings.freshbooks.refresh_token"
+                  v-model="refresh_token"
                   label="Refresh Token"
                 ></v-text-field
                 ><v-text-field
-                  v-model="settings.freshbooks.expires"
+                  v-model="expires"
                   label="Refresh Token Expiration"
                 ></v-text-field
                 ><v-text-field
-                  v-model="settings.freshbooks.redirect_uri"
+                  v-model="redirect_uri"
                   label="Redirect URI"
                 ></v-text-field>
                 <v-text-field
-                  v-model="settings.freshbooks.account_id"
+                  v-model="account_id"
                   label="Account ID"
                 ></v-text-field> </v-col></v-row
           ></v-expansion-panel-content> </v-expansion-panel
-        ><v-expansion-panel v-if="settings.projects">
+        ><v-expansion-panel>
           <v-expansion-panel-header>Project Defaults</v-expansion-panel-header>
           <v-expansion-panel-content
             ><v-row
-              v-for="(project, index) in settings.projects"
+              v-for="(project, index) in projectSettings"
               :key="project.name"
               ><v-col cols="4"
                 ><v-autocomplete
-                  v-model="project.name"
+                  :value="project.name"
+                  @input="v => update(v, index, 'name')"
                   :items="projects"
                   label="Project Name"
                   placeholder="Start typing to search"
@@ -68,7 +70,8 @@
                 ></v-autocomplete> </v-col
               ><v-col cols="4">
                 <v-autocomplete
-                  v-model="project.client_id"
+                  :value="project.client_id"
+                  @input="v => update(v, index, 'client_id')"
                   :items="clients"
                   item-text="organization"
                   item-value="id"
@@ -78,7 +81,8 @@
                 ></v-autocomplete> </v-col
               ><v-col cols="3">
                 <v-checkbox
-                  v-model="project.includeProjects"
+                  :input-value="project.includeProjects"
+                  @change="v => update(v, index, 'includeProjects')"
                   label="Include project name in description"
                 ></v-checkbox> </v-col
               ><v-col cols="1">
@@ -105,11 +109,13 @@
   ></template
 >
 <script>
-import { dispatch } from "vuex-pathify";
-import { clone } from "../utils/functions";
-import clickupService from "../utils/clickup-service";
+import { commit, dispatch, sync, get } from "vuex-pathify";
 export default {
   computed: {
+    ...sync("setting/clickup@*"),
+    ...sync("setting/freshbooks@*"),
+    projectSettings: get("setting/projects"),
+    folders: get("setting/folders"),
     clients() {
       return this.$store.get("client/clients").map(client => {
         return {
@@ -122,48 +128,29 @@ export default {
       return this.folders.map(folder => folder.name);
     }
   },
-  data() {
-    return {
-      settings: {},
-      folders: []
-    };
-  },
-  async created() {
-    await this.setLocalSettings();
-    this.$store.subscribe(mutation => {
-      if (mutation.type === "setting/SET_SETTINGS") {
-        this.setLocalSettings();
-      }
-    });
-  },
   methods: {
     add() {
-      this.settings.projects.push({
-        client_id: 0,
-        includeProjects: false,
-        name: ""
-      });
-    },
-    async setLocalSettings() {
-      this.settings = clone(this.$store.get("setting/settings"));
-      if (this.settings.clickup) {
-        let response = await clickupService.getFolders({
-          archived: false
-        });
-        this.folders = response.folders;
-      }
-    },
-    reset() {
-      this.setLocalSettings();
+      commit("setting/ADD_PROJECT");
     },
     remove(index) {
-      this.settings.projects.splice(index, 1);
+      commit("setting/REMOVE_PROJECT", index);
+    },
+    update(value, index, property) {
+      const path = "setting/projects@[" + index + "]." + property;
+      this.$store.set(path, value);
+    },
+    reset() {
+      dispatch("setting/loadSettings");
+      this.$store.set("snack/snack", {
+        snackbar: true,
+        text: "Settings reset successfully",
+        timeout: 6000,
+        color: "success",
+        bottom: true
+      });
     },
     save() {
-      dispatch("setting/updateSettings", {
-        val: this.settings,
-        mergeType: "overwrite"
-      });
+      dispatch("setting/saveSettings");
       this.$store.set("snack/snack", {
         snackbar: true,
         text: "Settings saved successfully",
