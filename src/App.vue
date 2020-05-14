@@ -33,9 +33,11 @@ export default {
     snack: {
       deep: true,
       handler() {
-        setTimeout(() => {
-          commit("snack/CLEAR_SNACK");
-        }, this.snack.timeout);
+        if (this.snack.snackbar) {
+          setTimeout(() => {
+            commit("snack/CLEAR_SNACK");
+          }, this.snack.timeout);
+        }
       }
     }
   }
