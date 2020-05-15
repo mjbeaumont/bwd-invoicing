@@ -86,22 +86,18 @@ async function refreshToken() {
       client_secret: store.get("setting/freshbooks@client_secret"),
       client_id: store.get("setting/freshbooks@client_id"),
       refresh_token: store.get("setting/freshbooks@refresh_token"),
-      redirect_uri: store.get("setting/settings@redirect_uri")
+      redirect_uri: store.get("setting/freshbooks@redirect_uri")
     })
   });
 
   const result = await response.json();
-  const val = {
-    freshbooks: {
-      access_token: result.access_token,
-      refresh_token: result.refresh_token,
-      expires: result.expires_in + result.created_at
-    }
-  };
-  await store.dispatch("setting/updateSettings", {
-    val: val,
-    mergeType: "merge"
-  });
+  // TODO: find a way to make this less verbose
+  store.set("setting/freshbooks@access_token", result.access_token);
+  store.set("setting/freshbooks@refresh_token", result.refresh_token);
+  store.set(
+    "setting/freshbooks@expires",
+    result.expires_in + result.created_at
+  );
 
   return result.access_token;
 }
