@@ -8,7 +8,12 @@ export const clone = ob => {
   return JSON.parse(JSON.stringify(ob));
 };
 
+export const convertClassesToNativeObjects = objArray => {
+  return objArray.map(obj => Object.assign({}, obj));
+};
+
 export default {
   asyncForEach,
-  clone
+  clone,
+  convertClassesToNativeObjects
 };

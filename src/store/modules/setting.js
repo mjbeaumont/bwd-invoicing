@@ -1,17 +1,19 @@
 import { make } from "vuex-pathify";
 
 const fb = require("../../firebaseConfig");
-import template from "../../utils/template";
+import { settings } from "../../utils/template";
 import clickupService from "../../utils/clickup-service";
+import { ProjectSetting } from "../../utils/classes";
+import { convertClassesToNativeObjects } from "../../utils/functions";
 
 const state = () => {
-  return template.settings();
+  return settings();
 };
 
 const mutations = {
   ...make.mutations(state),
-  ADD_PROJECT(state) {
-    state.projects.push(template.projectSetting());
+  ADD_PROJECT(state, project) {
+    state.projects.push(project);
   },
   REMOVE_PROJECT(state, index) {
     state.projects.splice(index, 1);

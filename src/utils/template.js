@@ -1,4 +1,4 @@
-const snack = () => {
+export const snack = () => {
   return {
     snackbar: false,
     top: null,
@@ -10,7 +10,7 @@ const snack = () => {
   };
 };
 
-const lineItem = () => {
+export const lineItem = () => {
   return {
     id: null,
     project: "",
@@ -21,7 +21,7 @@ const lineItem = () => {
   };
 };
 
-const settings = () => {
+export const settings = () => {
   return {
     clickup: {
       auth_key: "",
@@ -42,17 +42,8 @@ const settings = () => {
   };
 };
 
-const projectSetting = () => {
-  return {
-    client_id: 0,
-    includeProjects: false,
-    name: ""
-  };
-};
-
 export default {
   snack,
   lineItem,
-  settings,
-  projectSetting
+  settings
 };

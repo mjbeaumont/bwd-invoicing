@@ -110,6 +110,7 @@
 >
 <script>
 import { commit, dispatch, sync, get } from "vuex-pathify";
+import { ProjectSetting } from "../utils/classes";
 export default {
   computed: {
     ...sync("setting/clickup@*"),
@@ -130,7 +131,7 @@ export default {
   },
   methods: {
     add() {
-      commit("setting/ADD_PROJECT");
+      commit("setting/ADD_PROJECT", new ProjectSetting({}));
     },
     remove(index) {
       commit("setting/REMOVE_PROJECT", index);
