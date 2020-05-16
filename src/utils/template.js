@@ -38,6 +38,7 @@ export const settings = () => {
       refresh_token: ""
     },
     projects: [],
+    clients: [],
     folders: []
   };
 };

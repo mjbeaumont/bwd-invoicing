@@ -59,19 +59,49 @@
             ><v-row
               v-for="(project, index) in projectSettings"
               :key="project.name"
-              ><v-col cols="4"
+              ><v-col cols="5"
                 ><v-autocomplete
                   :value="project.name"
-                  @input="v => update(v, index, 'name')"
+                  @input="v => updateProject(v, index, 'name')"
                   :items="projects"
                   label="Project Name"
                   placeholder="Start typing to search"
                   prepend-icon="mdi-magnify"
                 ></v-autocomplete> </v-col
-              ><v-col cols="4">
+              ><v-col cols="5">
                 <v-autocomplete
                   :value="project.client_id"
-                  @input="v => update(v, index, 'client_id')"
+                  @input="v => updateProject(v, index, 'client_id')"
+                  :items="clients"
+                  item-text="organization"
+                  item-value="id"
+                  label="Client"
+                  placeholder="Start typing to search"
+                  prepend-icon="mdi-magnify"
+                ></v-autocomplete> </v-col
+              ><v-col cols="1">
+                <v-btn icon @click="removeProject(index)"
+                  ><v-icon>mdi-delete</v-icon></v-btn
+                >
+              </v-col>
+              <v-col cols="12"><v-divider></v-divider></v-col
+            ></v-row>
+            <v-row
+              ><v-btn class="secondary" @click="addProject"
+                ><v-icon>mdi-plus</v-icon>Add</v-btn
+              ></v-row
+            >
+          </v-expansion-panel-content> </v-expansion-panel
+        ><v-expansion-panel>
+          <v-expansion-panel-header>Client Defaults</v-expansion-panel-header>
+          <v-expansion-panel-content
+            ><v-row
+              v-for="(client, index) in clientSettings"
+              :key="client.client_id"
+              ><v-col cols="4">
+                <v-autocomplete
+                  :value="client.client_id"
+                  @input="v => updateClient(v, index, 'client_id')"
                   :items="clients"
                   item-text="organization"
                   item-value="id"
@@ -81,19 +111,19 @@
                 ></v-autocomplete> </v-col
               ><v-col cols="3">
                 <v-checkbox
-                  :input-value="project.includeProjects"
-                  @change="v => update(v, index, 'includeProjects')"
+                  :input-value="client.includeProjects"
+                  @change="v => updateClient(v, index, 'includeProjects')"
                   label="Include project name in description"
                 ></v-checkbox> </v-col
               ><v-col cols="1">
-                <v-btn icon @click="remove(index)"
+                <v-btn icon @click="removeClient(index)"
                   ><v-icon>mdi-delete</v-icon></v-btn
                 >
               </v-col>
               <v-col cols="12"><v-divider></v-divider></v-col
             ></v-row>
             <v-row
-              ><v-btn class="secondary" @click="add"
+              ><v-btn class="secondary" @click="addClient"
                 ><v-icon>mdi-plus</v-icon>Add</v-btn
               ></v-row
             >
@@ -110,12 +140,13 @@
 >
 <script>
 import { commit, dispatch, sync, get } from "vuex-pathify";
-import { ProjectSetting } from "../utils/classes";
+import { ProjectSetting, ClientSetting } from "../utils/classes";
 export default {
   computed: {
     ...sync("setting/clickup@*"),
     ...sync("setting/freshbooks@*"),
     projectSettings: get("setting/projects"),
+    clientSettings: get("setting/clients"),
     folders: get("setting/folders"),
     clients() {
       return this.$store.get("client/clients").map(client => {
@@ -130,14 +161,24 @@ export default {
     }
   },
   methods: {
-    add() {
+    addProject() {
       commit("setting/ADD_PROJECT", new ProjectSetting({}));
     },
-    remove(index) {
+    removeProject(index) {
       commit("setting/REMOVE_PROJECT", index);
     },
-    update(value, index, property) {
+    updateProject(value, index, property) {
       const path = "setting/projects@[" + index + "]." + property;
+      this.$store.set(path, value);
+    },
+    addClient() {
+      commit("setting/ADD_CLIENT", new ClientSetting({}));
+    },
+    removeClient(index) {
+      commit("setting/REMOVE_CLIENT", index);
+    },
+    updateClient(value, index, property) {
+      const path = "setting/clients@[" + index + "]." + property;
       this.$store.set(path, value);
     },
     reset() {
