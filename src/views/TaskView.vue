@@ -211,13 +211,20 @@ export default {
     },
     setDefaults() {
       this.tasks.forEach(task => {
-        const setting = this.projectSettings.find(
+        const projectSetting = this.projectSettings.find(
           project => project.name === task.project
         );
-        if (setting) {
+
+        if (projectSetting) {
+          const clientSetting = this.clientSettings.find(
+            client => client.client_id === projectSetting.client_id
+          );
+
           task = Object.assign(task, {
-            client: setting.client_id,
-            includeProjectName: setting.includeProjects
+            client: projectSetting.client_id,
+            includeProjectName: clientSetting
+              ? clientSetting.includeProjects
+              : false
           });
         }
       });
