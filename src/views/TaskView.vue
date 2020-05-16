@@ -12,56 +12,33 @@
           v-model="selected"
           :loading="loading"
         >
-          <template v-slot:top>
-            <v-dialog v-model="dialog" max-width="500px">
-              <v-card>
-                <v-card-title>
-                  <span class="headline">Edit Project</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col md="12">
-                        <v-autocomplete
-                          v-model="editedItem.client"
-                          :items="clients"
-                          item-text="organization"
-                          item-value="id"
-                          label="Client"
-                          placeholder="Start typing to search"
-                          prepend-icon="mdi-magnify"
-                        ></v-autocomplete>
-                      </v-col>
-                      <v-col md="12">
-                        <v-checkbox
-                          v-model="editedItem.includeProjectName"
-                          label="Include Project Name?"
-                        ></v-checkbox>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="close"
-                    >Cancel</v-btn
-                  >
-                  <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </template>
           <template v-slot:item.time="{ item }">
             {{ item.time | clickupHours }}
           </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-          </template>
           <template v-slot:item.client="{ item }">
             {{ getClientName(item.client) }}
+          </template>
+          <template v-slot:item.client="props">
+            <v-edit-dialog
+              :return-value.sync="props.item.client"
+              large
+              persistent
+              >{{ getClientName(props.item.client)
+              }}<template v-slot:input
+                ><v-autocomplete
+                  v-model="props.item.client"
+                  :items="clients"
+                  item-text="organization"
+                  item-value="id"
+                  label="Client"
+                  placeholder="Start typing to search"
+                  prepend-icon="mdi-magnify"
+                ></v-autocomplete> </template></v-edit-dialog
+          ></template>
+          <template v-slot:item.includeProjectName="{ item }">
+            <v-simple-checkbox
+              v-model="item.includeProjectName"
+            ></v-simple-checkbox>
           </template>
         </v-data-table>
       </v-col>
@@ -128,11 +105,7 @@ export default {
   data() {
     return {
       selected: [],
-      editedIndex: -1,
       confirmDialog: false,
-      dialog: false,
-      defaultItem: template.lineItem(),
-      editedItem: template.lineItem(),
       headers: [
         {
           text: "Project Name",
@@ -151,23 +124,14 @@ export default {
           text: "Client",
           value: "client"
         },
-        { text: "Actions", value: "actions", sortable: false }
+        {
+          text: "Include Project Name",
+          value: "includeProjectName"
+        }
       ]
     };
   },
   methods: {
-    close() {
-      this.dialog = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-    },
-    editItem(item) {
-      this.editedIndex = this.tasks.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
     getClientName(id) {
       return id
         ? this.$store.getters["client/clientName"](id)
@@ -245,14 +209,6 @@ export default {
         }
       }
     },
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.tasks[this.editedIndex], this.editedItem);
-      } else {
-        console.log("error");
-      }
-      this.close();
-    },
     setDefaults() {
       this.tasks.forEach(task => {
         const setting = this.projectSettings.find(
@@ -281,9 +237,6 @@ export default {
   },
   name: "TaskView",
   watch: {
-    dialog(val) {
-      val || this.close();
-    },
     loading(val) {
       if (!val) {
         this.setDefaults();
