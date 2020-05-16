@@ -56,33 +56,17 @@
         ><v-icon>mdi-receipt</v-icon></v-btn
       >
     </v-fab-transition>
-    <v-dialog v-model="confirmDialog" max-width="350"
-      ><v-card
-        ><v-card-title>Generate Invoices?</v-card-title
-        ><v-card-text>
-          You are about to generate invoices for
-          {{ selected.length }} tasks. </v-card-text
-        ><v-card-actions
-          ><v-spacer></v-spacer>
-          <v-btn text color="secondary" @click="confirmDialog = false"
-            >Cancel</v-btn
-          >
-          <v-btn text color="success" @click="generate">generate</v-btn>
-        </v-card-actions></v-card
-      >
-    </v-dialog>
   </v-container></template
 >
 
 <script>
-import { dispatch, get } from "vuex-pathify";
-import freshbooksService from "../utils/freshbooks-service";
-import clickupService from "../utils/clickup-service";
-import template from "../utils/template";
+import { get, commit } from "vuex-pathify";
+import { Invoice, InvoiceLine } from "../utils/classes";
 export default {
   computed: {
     clients: get("client/clients"),
     projectSettings: get("setting/projects"),
+    clientSettings: get("setting/clients"),
     loading: get("loading"),
     tasks() {
       return this.$store.get("task/tasks").map(task => {
@@ -140,8 +124,7 @@ export default {
     confirm() {
       const valid = this.selected.every(task => task.client);
       if (valid) {
-        this.$store.set("task/selected", this.selected);
-        this.confirmDialog = true;
+        this.generate();
       } else {
         this.$store.set("snack/snack", {
           snackbar: true,
@@ -154,7 +137,6 @@ export default {
     },
     async generate() {
       let invoiceMap = {};
-      let successful = 0;
       let date = new Date();
       this.selected.forEach(task => {
         if (Object.prototype.hasOwnProperty.call(invoiceMap, task.client)) {
@@ -166,48 +148,29 @@ export default {
         }
       });
 
-      for (const invoice in invoiceMap) {
-        const request = {
-          invoice: {
-            customerid: invoice,
-            create_date: this.$options.filters.freshbooksDate(date),
-            due_offset_days: 30,
-            lines: []
-          }
-        };
-        invoiceMap[invoice].tasks.forEach(task => {
+      for (const customerId in invoiceMap) {
+        const invoice = new Invoice({
+          customerid: Number.parseInt(customerId),
+          createDate: date
+        });
+        invoiceMap[customerId].tasks.forEach(task => {
           let description = "";
           if (task.includeProjectName) {
             description += task.project + " - ";
           }
           description += task.name;
           let time = Number.parseInt(task.time);
-          request.invoice.lines.push({
-            type: "0",
-            name: "Web Development",
-            description: description,
-            unit_cost: {
-              amount: 100
-            },
-            qty: isNaN(time) ? 0 : time / 3600000
-          });
+          invoice.lines.push(
+            new InvoiceLine({
+              description: description,
+              time: time
+            })
+          );
+          invoice.taskIds.push(task.id);
         });
-        let response = await freshbooksService.createInvoice(request);
-        if (response.invoice) {
-          for (let i = 0; i < invoiceMap[invoice].tasks.length; i++) {
-            response = await clickupService.updateTask(
-              invoiceMap[invoice].tasks[i].id,
-              {
-                status: "closed"
-              }
-            );
-            successful++;
-          }
-        }
-        if (successful > 0) {
-          await this.success(successful);
-        }
+        commit("invoice/ADD_INVOICE", invoice);
       }
+      await this.$router.push("invoices");
     },
     setDefaults() {
       this.tasks.forEach(task => {
@@ -228,24 +191,18 @@ export default {
           });
         }
       });
-    },
-    async success(successful) {
-      await dispatch("task/loadTasks");
-      this.confirmDialog = false;
-      this.$store.set("snack/snack", {
-        snackbar: true,
-        text: successful + " tasks were added to invoices successfully.",
-        timeout: 6000,
-        color: "success",
-        bottom: true
-      });
-      this.selected = [];
     }
   },
   name: "TaskView",
   watch: {
     loading(val) {
       if (!val) {
+        this.setDefaults();
+      }
+    },
+    projectSettings: {
+      deep: true,
+      handler() {
         this.setDefaults();
       }
     }

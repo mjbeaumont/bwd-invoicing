@@ -3,8 +3,7 @@ import { make } from "vuex-pathify";
 
 const state = () => {
   return {
-    tasks: [],
-    selected: []
+    tasks: []
   };
 };
 

@@ -6,6 +6,7 @@ import task from "./modules/task";
 import client from "./modules/client";
 import setting from "./modules/setting";
 import snack from "./modules/snack";
+import invoice from "./modules/invoice";
 
 Vue.use(Vuex);
 
@@ -24,6 +25,7 @@ const actions = {
     commit("task/SET_SELECTED", []);
     commit("client/SET_CLIENTS", []);
     commit("snack/CLEAR_SNACK");
+    commit("invoice/SET_INVOICES", []);
   }
 };
 
@@ -36,7 +38,8 @@ export const store = new Vuex.Store({
     task,
     client,
     setting,
-    snack
+    snack,
+    invoice
   },
   strict: process.env.NODE_ENV !== "production",
   plugins: [pathify.plugin]
