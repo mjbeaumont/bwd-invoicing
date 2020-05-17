@@ -1,6 +1,9 @@
 const objectToQueryString = obj => {
   return Object.keys(obj)
-    .map(key => key + "=" + obj[key])
+    .map(key => {
+      const values = Array.isArray(obj[key]) ? obj[key] : [obj[key]];
+      return values.map(value => key + "=" + value).join("&");
+    })
     .join("&");
 };
 
