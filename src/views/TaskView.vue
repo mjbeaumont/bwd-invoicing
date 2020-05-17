@@ -136,41 +136,36 @@ export default {
       }
     },
     async generate() {
-      let invoiceMap = {};
-      let date = new Date();
+      let invoices = [];
       this.selected.forEach(task => {
-        if (Object.prototype.hasOwnProperty.call(invoiceMap, task.client)) {
-          invoiceMap[task.client].tasks.push(task);
-        } else {
-          invoiceMap[task.client] = {
-            tasks: [task]
-          };
+        let invoice = invoices.find(i => i.customerid === task.client);
+        if (!invoice) {
+          invoice = new Invoice({
+            customerid: Number.parseInt(task.client),
+            createDate: new Date()
+          });
+          invoices.push(invoice);
         }
+        invoice.lines.push(
+          new InvoiceLine({
+            description: this.getLineItemName(task),
+            time: Number.parseInt(task.time)
+          })
+        );
       });
 
-      for (const customerId in invoiceMap) {
-        const invoice = new Invoice({
-          customerid: Number.parseInt(customerId),
-          createDate: date
-        });
-        invoiceMap[customerId].tasks.forEach(task => {
-          let description = "";
-          if (task.includeProjectName) {
-            description += task.project + " - ";
-          }
-          description += task.name;
-          let time = Number.parseInt(task.time);
-          invoice.lines.push(
-            new InvoiceLine({
-              description: description,
-              time: time
-            })
-          );
-          invoice.taskIds.push(task.id);
-        });
+      invoices.forEach(invoice => {
         commit("invoice/ADD_INVOICE", invoice);
-      }
+      });
       await this.$router.push("invoices");
+    },
+    getLineItemName(task) {
+      let description = "";
+      if (task.includeProjectName) {
+        description += task.project + " - ";
+      }
+      description += task.name;
+      return description;
     },
     setDefaults() {
       this.tasks.forEach(task => {
