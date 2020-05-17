@@ -32,7 +32,8 @@ fb.auth.onAuthStateChanged(user => {
             await store.dispatch("setting/loadSettings");
             await Promise.all([
               dispatch("client/loadClients"),
-              dispatch("task/loadTasks")
+              dispatch("task/loadTasks"),
+              dispatch("invoice/loadExistingInvoices")
             ]);
             store.set("loading", false);
           }

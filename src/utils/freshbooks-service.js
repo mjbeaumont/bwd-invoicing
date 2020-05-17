@@ -1,8 +1,13 @@
 import { store } from "./../store/index";
 import apiService from "./api-service";
 
-const _apiHost = "https://api.freshbooks.com/";
-const _proxyUrl = "https://cors.beaumontwebdev.com:4856/";
+function getApiHost() {
+  return (
+    "https://cors.beaumontwebdev.com:4856/" +
+    "https://api.freshbooks.com/accounting/account/" +
+    store.get("setting/freshbooks@account_id")
+  );
+}
 
 async function request(url, params, method = "get") {
   let access_token;
@@ -34,7 +39,7 @@ async function request(url, params, method = "get") {
     }
   }
 
-  const response = await fetch(_proxyUrl + _apiHost + url, options);
+  const response = await fetch(getApiHost() + url, options);
 
   if (response.status !== 200) {
     store.set("snack/snack", {
@@ -56,29 +61,21 @@ async function request(url, params, method = "get") {
 }
 
 async function createInvoice(data) {
-  return await apiService.create(
-    "accounting/account/" +
-      store.get("setting/freshbooks@account_id") +
-      "/invoices/invoices",
-    data,
-    request
-  );
+  return await apiService.create("/invoices/invoices", data, request);
 }
 
 async function getClients(search) {
-  return await apiService.get(
-    "/accounting/account/" +
-      store.get("setting/freshbooks@account_id") +
-      "/users/clients",
-    search,
-    request
-  );
+  return await apiService.get("/users/clients", search, request);
+}
+
+async function getInvoices(search) {
+  return await apiService.get("/invoices/invoices", search, request);
 }
 
 async function refreshToken() {
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
-  const response = await fetch(_apiHost + "auth/oauth/token", {
+  const response = await fetch(getApiHost() + "/auth/oauth/token", {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
@@ -104,5 +101,6 @@ async function refreshToken() {
 
 export default {
   createInvoice,
-  getClients
+  getClients,
+  getInvoices
 };
