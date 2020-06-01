@@ -8,6 +8,15 @@ const state = () => {
   };
 };
 
+const getters = {
+  getClientIds(state) {
+    return state.invoices.map(invoice => invoice.customerid);
+  },
+  getExistingInvoices: state => clientId => {
+    return state.existing.filter(invoice => invoice.customerid === clientId);
+  }
+};
+
 const mutations = {
   ...make.mutations(state),
   ADD_INVOICE(state, invoice) {
@@ -19,11 +28,12 @@ const mutations = {
 };
 
 const actions = {
-  async loadExistingInvoices({ commit }) {
+  async loadExistingInvoices({ commit, getters }) {
     let response = await freshbooksService.getInvoices({
       per_page: 50,
-      "search[customerids][]": [2, 685967],
-      "search[v3_status]": "draft"
+      "search[customerids][]": getters.getClientIds,
+      "search[v3_status]": "draft",
+      "include[]": "lines"
     });
     if (response.invoices && response.invoices.length) {
       commit("SET_EXISTING", response.invoices);
@@ -33,6 +43,7 @@ const actions = {
 
 export default {
   state,
+  getters,
   mutations,
   actions,
   namespaced: true

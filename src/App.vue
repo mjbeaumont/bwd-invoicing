@@ -2,7 +2,7 @@
   <v-app>
     <navigation></navigation>
     <v-content>
-      <keep-alive exclude="Login">
+      <keep-alive exclude="Login,TaskView">
         <router-view></router-view>
       </keep-alive>
     </v-content>

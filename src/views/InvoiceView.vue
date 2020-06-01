@@ -16,6 +16,21 @@
           <v-list-item-subtitle>{{ line.qty }}h</v-list-item-subtitle>
         </v-list-item-content></v-list-item
       >
+      <v-container v-if="getExistingInvoicesCount(invoice.customerid)">
+        <v-row>
+          <v-col cols="4"
+            ><v-select
+              light
+              :items="getExistingInvoices(invoice.customerid)"
+              :value="invoice.id"
+              solo
+              label="Destination"
+              @input="v => updateInvoice(v, index)"
+            ></v-select
+          ></v-col>
+        </v-row>
+      </v-container>
+
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn @click="remove(index)" color="secondary"
@@ -23,26 +38,29 @@
         >
       </v-card-actions>
     </v-card>
-    <v-btn @click="generate" color="primary">Generate</v-btn>
+    <v-btn @click="generate" color="primary" :loading="loading">Generate</v-btn>
   </v-container>
 </template>
 
 <script>
-import { get, commit, dispatch } from "vuex-pathify";
-//import freshbooksService from "../utils/freshbooks-service";
-//import clickupService from "../utils/clickup-service";
+import { get, sync, commit, dispatch } from "vuex-pathify";
+import freshbooksService from "../utils/freshbooks-service";
+import clickupService from "../utils/clickup-service";
 import { clone } from "../utils/functions";
+import { InvoiceLine } from "../utils/classes";
 export default {
   created() {
     if (!this.invoices.length) {
-      this.redirectToTaskView();
+      this.$router.push("tasks");
     }
   },
   computed: {
-    invoices: get("invoice/invoices")
+    invoices: get("invoice/invoices"),
+    loading: sync("loading")
   },
   methods: {
     async generate() {
+      this.loading = true;
       let successful = {
         invoices: 0,
         tasks: 0
@@ -50,29 +68,54 @@ export default {
       for (let i = 0; i <= this.invoices.length; i++) {
         // eslint-disable-next-line no-unused-vars
         let { id, taskIds, ...request } = this.invoices[i];
-        request = clone(request);
-        //let response = await freshbooksService.createInvoice(request);
-        console.log(request);
-        let response = {
-          invoice: true
-        };
+        let response;
+        request = { invoice: clone(request) };
+        if (id) {
+          const existingLines = this.getExistingLines(id);
+          request.invoice.lines = request.invoice.lines.concat(existingLines);
+          console.log(request);
+          response = await freshbooksService.updateInvoice(request, id);
+        } else {
+          response = await freshbooksService.createInvoice(request);
+        }
+        console.log(response.invoice);
         if (response.invoice) {
           for (let j = 0; j < taskIds.length; j++) {
-            /*response = await clickupService.updateTask(taskIds[j], {
+            response = await clickupService.updateTask(taskIds[j], {
               status: "closed"
-            });*/
+            });
+            console.log(response);
             console.log(taskIds[j]);
             successful.tasks++;
           }
           successful.invoices++;
         }
+        this.loading = false;
         if (successful.invoices > 0) {
           await this.success(successful);
         }
       }
     },
     getClientName(id) {
-      return this.$store.getters["client/clientName"](id);
+      return this.$store.get("client/clientName", id);
+    },
+    getExistingLines(id) {
+      const lines = [];
+      const invoice = this.$store
+        .get("invoice/existing")
+        .find(invoice => invoice.id === id);
+      invoice.lines.forEach(line => {
+        lines.push(
+          clone(
+            new InvoiceLine({
+              description: line.description,
+              time: line.qty * 3600000 // reverse this
+            })
+          )
+        );
+      });
+
+      return lines;
     },
     getInvoiceTotal(invoice) {
       return invoice.lines.reduce(
@@ -80,8 +123,23 @@ export default {
         0
       );
     },
-    redirectToTaskView() {
-      this.$router.push("tasks");
+    getExistingInvoices(clientId) {
+      let invoices = [{ value: null, text: "Create new invoice" }];
+      invoices = invoices.concat(
+        this.$store
+          .get("invoice/getExistingInvoices", clientId)
+          .map(invoice => {
+            return {
+              value: invoice.id,
+              text: "Add to existing invoice #" + invoice.invoice_number
+            };
+          })
+      );
+
+      return invoices;
+    },
+    getExistingInvoicesCount(clientId) {
+      return this.$store.get("invoice/getExistingInvoices", clientId).length;
     },
     remove(index) {
       commit("invoice/REMOVE_INVOICE", index);
@@ -100,13 +158,17 @@ export default {
         bottom: true
       });
       await commit("invoice/SET_INVOICES", []);
+    },
+    updateInvoice(value, index) {
+      const path = "invoice/invoices@[" + index + "].id";
+      this.$store.set(path, value);
     }
   },
   name: "InvoiceView.vue",
   watch: {
     invoices(val) {
       if (!val.length) {
-        this.redirectToTaskView();
+        this.$router.push("tasks");
       }
     }
   }

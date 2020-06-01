@@ -1,9 +1,9 @@
 import { formatFreshbooksDate } from "./functions";
 
 export class Invoice {
-  constructor({ customerid = null, createDate = null }) {
+  constructor({ customerid = null, create_date = null }) {
     this.customerid = customerid;
-    this.createDate = formatFreshbooksDate(createDate);
+    this.create_date = formatFreshbooksDate(create_date);
     this.due_offset_days = 30;
     this.lines = [];
     this.id = null;

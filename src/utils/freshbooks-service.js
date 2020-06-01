@@ -60,8 +60,16 @@ async function request(url, params, method = "get") {
   return result.response.result;
 }
 
+async function getInvoice(id) {
+  return await apiService.get("invoices/invoices/" + id, null, request);
+}
+
 async function createInvoice(data) {
   return await apiService.create("/invoices/invoices", data, request);
+}
+
+async function updateInvoice(data, id) {
+  return await apiService.update("/invoices/invoices/" + id, data, request);
 }
 
 async function getClients(search) {
@@ -100,7 +108,9 @@ async function refreshToken() {
 }
 
 export default {
+  getInvoice,
   createInvoice,
+  updateInvoice,
   getClients,
   getInvoices
 };

@@ -53,6 +53,8 @@
         color="accent"
         v-if="selected.length"
         @click="confirm"
+        :loading="buttonLoading"
+        :disabled="buttonLoading"
         ><v-icon>mdi-receipt</v-icon></v-btn
       >
     </v-fab-transition>
@@ -60,7 +62,7 @@
 >
 
 <script>
-import { get, commit } from "vuex-pathify";
+import { get, commit, dispatch } from "vuex-pathify";
 import { Invoice, InvoiceLine } from "../utils/classes";
 export default {
   computed: {
@@ -112,14 +114,13 @@ export default {
           text: "Include Project Name",
           value: "includeProjectName"
         }
-      ]
+      ],
+      buttonLoading: false
     };
   },
   methods: {
     getClientName(id) {
-      return id
-        ? this.$store.getters["client/clientName"](id)
-        : "None selected";
+      return id ? this.$store.get("client/clientName", id) : "None selected";
     },
     confirm() {
       const valid = this.selected.every(task => task.client);
@@ -137,12 +138,13 @@ export default {
     },
     async generate() {
       let invoices = [];
+      let existing;
       this.selected.forEach(task => {
         let invoice = invoices.find(i => i.customerid === task.client);
         if (!invoice) {
           invoice = new Invoice({
             customerid: Number.parseInt(task.client),
-            createDate: new Date()
+            create_date: new Date()
           });
           invoices.push(invoice);
         }
@@ -152,11 +154,22 @@ export default {
             time: Number.parseInt(task.time)
           })
         );
+        invoice.taskIds.push(task.id);
       });
 
+      await this.loadExistingInvoices();
+
       invoices.forEach(invoice => {
+        existing = this.$store.get(
+          "invoice/getExistingInvoices",
+          invoice.customerid
+        );
+        if (existing) {
+          invoice.id = existing[0].id;
+        }
         commit("invoice/ADD_INVOICE", invoice);
       });
+
       await this.$router.push("invoices");
     },
     getLineItemName(task) {
@@ -166,6 +179,11 @@ export default {
       }
       description += task.name;
       return description;
+    },
+    async loadExistingInvoices() {
+      this.buttonLoading = true;
+      await dispatch("invoice/loadExistingInvoices");
+      this.buttonLoading = false;
     },
     setDefaults() {
       this.tasks.forEach(task => {
