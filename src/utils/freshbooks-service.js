@@ -75,7 +75,7 @@ async function getInvoices(search) {
 async function refreshToken() {
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
-  const response = await fetch(getApiHost() + "/auth/oauth/token", {
+  const response = await fetch("https://api.freshbooks.com/auth/oauth/token", {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
