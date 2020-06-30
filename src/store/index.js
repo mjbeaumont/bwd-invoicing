@@ -1,12 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import pathify, { make } from "vuex-pathify";
-import user from "./modules/user";
-import task from "./modules/task";
-import client from "./modules/client";
-import setting from "./modules/setting";
-import snack from "./modules/snack";
-import invoice from "./modules/invoice";
+
+// import the auto exporter
+import modules from "./modules";
 
 Vue.use(Vuex);
 
@@ -33,14 +30,7 @@ export const store = new Vuex.Store({
   state,
   mutations,
   actions,
-  modules: {
-    user,
-    task,
-    client,
-    setting,
-    snack,
-    invoice
-  },
+  modules: modules,
   strict: process.env.NODE_ENV !== "production",
   plugins: [pathify.plugin]
 });
