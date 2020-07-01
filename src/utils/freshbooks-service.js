@@ -22,6 +22,10 @@ async function request(url, params, method = "get") {
     access_token = store.get("setting/freshbooks@access_token");
   }
 
+  if (!access_token) {
+    return {};
+  }
+
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("Authorization", "Bearer " + access_token);
@@ -95,16 +99,20 @@ async function refreshToken() {
     })
   });
 
-  const result = await response.json();
-  // TODO: find a way to make this less verbose
-  store.set("setting/freshbooks@access_token", result.access_token);
-  store.set("setting/freshbooks@refresh_token", result.refresh_token);
-  store.set(
-    "setting/freshbooks@expires",
-    result.expires_in + result.created_at
-  );
+  if (response.status === 200) {
+    const result = await response.json();
+    // TODO: find a way to make this less verbose
+    store.set("setting/freshbooks@access_token", result.access_token);
+    store.set("setting/freshbooks@refresh_token", result.refresh_token);
+    store.set(
+      "setting/freshbooks@expires",
+      result.expires_in + result.created_at
+    );
 
-  return result.access_token;
+    return result.access_token;
+  } else {
+    window.location.href = store.get("setting/freshbooks@redirect_uri");
+  }
 }
 
 export default {
