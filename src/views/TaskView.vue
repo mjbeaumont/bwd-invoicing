@@ -7,7 +7,7 @@
           :headers="headers"
           show-select
           sort-by="project"
-          :items-per-page="20"
+          :items-per-page="50"
           item-key="name"
           v-model="selected"
           :loading="loading"
@@ -164,7 +164,7 @@ export default {
           "invoice/getExistingInvoices",
           invoice.customerid
         );
-        if (existing) {
+        if (existing.length) {
           invoice.id = existing[0].id;
         }
         commit("invoice/ADD_INVOICE", invoice);
