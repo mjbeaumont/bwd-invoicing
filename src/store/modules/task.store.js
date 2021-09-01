@@ -12,7 +12,7 @@ const mutations = make.mutations(state);
 const actions = {
   async loadTasks({ commit }) {
     let response = await clickupService.getTasks({
-      ["statuses[]"]: "Awaiting Invoicing"
+      ["statuses[]"]: "Ready To Invoice"
     });
     if (response.tasks && response.tasks.length) {
       const tasks = response.tasks.filter(task => task.time_spent > 0);
